@@ -17,5 +17,5 @@ npm install -g @google/clasp
 clasp login
 https://script.google.com/home/usersettings
 clasp create --type webapp --title "LibGear"
-clasp push
+clasp push --force
 https://script.google.com/

@@ -1,7 +1,8 @@
 function doGet() {
   var template = HtmlService.createTemplateFromFile('test1.html');
   template.data = getDataFromSheet();
-  return template.evaluate();}
+  return template.evaluate();
+}
 
 
 function getDataFromSheet() {
