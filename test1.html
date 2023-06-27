@@ -8,7 +8,82 @@
 </head>
 
 <body>
-    <h1>gs 測試xxxxxxxxccccccc</h1>
+    <h1>gs 測試</h1>
+
+    <h2>寫入 testinsert sheet</h2>
+    <form id="myForm" onsubmit="return submitInput()">
+        <label for="booking_date">選擇日期:</label>
+        <input type="date" id="booking_date" v-model="selected_date">
+        <div></div>
+        <label for="booking_class">選擇班級:</label>
+        <select id="selected_className">
+            <option value="">--請選擇班級--</option>
+            <option value="國一仁">國一仁</option>
+            <option value="國一義">國一義</option>
+            <option value="國一禮">國一禮</option>
+            <option value="國一智">國一智</option>
+            <option value="國二仁">國二仁</option>
+            <option value="國二義">國二義</option>
+            <option value="國二禮">國二禮</option>
+            <option value="國二智">國二智</option>
+            <option value="國三仁">國三仁</option>
+            <option value="國三義">國三義</option>
+            <option value="國三禮">國三禮</option>
+            <option value="國三智">國三智</option>
+            <option value="高一仁">高一仁</option>
+            <option value="高一義">高一義</option>
+            <option value="高一禮">高一禮</option>
+            <option value="高一智">高一智</option>
+            <option value="高一信">高一信</option>
+            <option value="高一忠">高一忠</option>
+            <option value="高一孝">高一孝</option>
+            <option value="高一和">高一和</option>
+            <option value="高二仁">高二仁</option>
+            <option value="高二義">高二義</option>
+            <option value="高二禮">高二禮</option>
+            <option value="高二智">高二智</option>
+            <option value="高二信">高二信</option>
+            <option value="高二忠">高二忠</option>
+            <option value="高二孝">高二孝</option>
+            <option value="高二和">高二和</option>
+            <option value="高三仁">高三仁</option>
+            <option value="高三義">高三義</option>
+            <option value="高三禮">高三禮</option>
+            <option value="高三智">高三智</option>
+            <option value="高三信">高三信</option>
+            <option value="高三忠">高三忠</option>
+            <option value="高三孝">高三孝</option>
+            <option value="高三和">高三和</option>
+            <option value="other">其他(跨班跨年級)</option>
+        </select>
+        <input type="text" v-show="selected_className === 'other'" v-model="other_className" placeholder="請輸入班級">
+
+        <div>任課教師/借用人</div>
+        <input type="text" id="teacherName">
+        <div>科目/課程 </div>
+        <input type="text" id="classSubject">
+        <div>其他說明</div>
+        <input type="text" id="descript">
+        <input id="myInput" type="text">
+        <input type="submit" value="Submit">
+    </form>
+    <hr>
+    <table>
+        <tr>
+            <td>編號</td>
+            <td>設備名稱</td>
+        </tr>
+        <? for (var i = 1; i < gears.length; i++) { ?>
+        <tr>
+            <? for (var j = 0; j < gears[i].length; j++) { ?>
+            <td>
+                <?= gears[i][j] ?>
+            </td>
+            <? } ?>
+        </tr>
+        <? } ?>
+    </table>
+    <hr>
     <table>
         <? for (var i = 0; i < data.length; i++) { ?>
         <tr>
@@ -20,6 +95,25 @@
         </tr>
         <? } ?>
     </table>
+
+
+    <script>
+        function submitInput() {
+            var booking_date = document.getElementById('booking_date').value;
+            var selected_className = document.getElementById('selected_className').value;
+            var teacherName = document.getElementById('teacherName').value;
+            var classSubject = document.getElementById('classSubject').value;
+            var descript = document.getElementById('descript').value;
+            var inputValue = document.getElementById('myInput').value;
+            google.script.run.updateSheet(booking_date, selected_className, teacherName, classSubject, descript);
+
+            // Clear the input field
+            document.getElementById('myInput').value = '';
+
+            // Prevent form from submitting and causing a page refresh
+            return false;
+        }
+    </script>
 </body>
 
 </html>

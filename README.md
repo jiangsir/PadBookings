@@ -19,3 +19,8 @@ https://script.google.com/home/usersettings
 clasp create --type webapp --title "LibGear"
 clasp push --force
 https://script.google.com/
+
+手動部屬成"網頁應用程式"
+https://script.google.com/home/projects/1SyJdsOSKKdEElKYxfLOcYSrEw7Babnc9KtcC9go8xgrm33hZOtHiK_3R/edit
+
+並取得 URL 觀看結果。
