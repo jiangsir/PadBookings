@@ -8,12 +8,15 @@
 </head>
 
 <body>
-    <h1>gs 測試</h1>
+    <h1>gs 測試
+        <?= email ?>
+    </h1>
+    <p id="message"></p>
 
     <h2>寫入 testinsert sheet</h2>
     <form id="myForm" onsubmit="return submitInput()">
         <label for="booking_date">選擇日期:</label>
-        <input type="date" id="booking_date" v-model="selected_date">
+        <input type="date" id="booking_date" v-model="selected_date" onchange="updateBookingsByDate()">
         <div></div>
         <label for="booking_class">選擇班級:</label>
         <select id="selected_className">
@@ -64,32 +67,74 @@
         <input type="text" id="classSubject">
         <div>其他說明</div>
         <input type="text" id="descript">
-        <input id="myInput" type="text">
+
+        <div id="periods">
+            <label for="booking_periods">節次:</label><br>
+            <div>
+                <? for (var i = 1; i < periods.length; i++) { ?>
+                <input class="period-checkbox" type="checkbox" id="<?= periods[i][1] ?>" value="<?= periods[i][2] ?>">
+                <label>
+                    <?= periods[i][2] ?>
+                </label><br>
+                <? } ?>
+            </div>
+        </div>
+        <div id="bookingsByDate">
+            <h2 id="bookings_title"></h2>
+            <table id="bookingsTable">
+                <thead>
+                    <tr>
+                        <th>借用日期</th>
+                        <th>節次</th>
+                        <th>借用老師</th>
+                        <th>課程</th>
+                        <th>設備</th>
+                        <!-- 更多的欄位 -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据将会在这里插入 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="items">
+            <label for="booking_items">設備:</label><br>
+            <div>
+                <? for (var i = 1; i < gears.length; i++) { ?>
+                <input type="radio" id="gear<?=i?>" name="gearRadio" value="<?= gears[i][1] ?>">
+                <label>
+                    <?= gears[i][1] ?>
+                </label><br>
+                <? } ?>
+            </div>
+            <input type="radio" id="other" value="other" v-model="selected_item">
+            <label for="other">其它</label>
+            <input type="text" v-show="selected_item === 'other'" v-model="otherItem" placeholder="請輸入其他設備">
+        </div>
+
         <input type="submit" value="Submit">
     </form>
+
     <hr>
     <table>
+        <? for (var i = 0; i < bookings.length; i++) { ?>
         <tr>
-            <td>編號</td>
-            <td>設備名稱</td>
-        </tr>
-        <? for (var i = 1; i < gears.length; i++) { ?>
-        <tr>
-            <? for (var j = 0; j < gears[i].length; j++) { ?>
+            <? for (var j = 0; j < bookings[i].length; j++) { ?>
             <td>
-                <?= gears[i][j] ?>
-            </td>
-            <? } ?>
-        </tr>
-        <? } ?>
-    </table>
-    <hr>
-    <table>
-        <? for (var i = 0; i < data.length; i++) { ?>
-        <tr>
-            <? for (var j = 0; j < data[i].length; j++) { ?>
-            <td>
-                <?= data[i][j] ?>
+                <? if (i>0 && j == 0) { // replace with your actual time column index
+                    var timeValue = new Date(bookings[i][j]);
+                    var formattedTimeValue = Utilities.formatDate(timeValue, "GMT+8", "yyyy-MM-dd HH:mm:ss");
+                    ?>
+                <?= formattedTimeValue ?>
+                <? } else if (i>0 && j == 1) { 
+                    var timeValue = new Date(bookings[i][j]);
+                    var formattedTimeValue = Utilities.formatDate(timeValue, "GMT+8", "yyyy-MM-dd");
+                    ?>
+                <?= formattedTimeValue ?>
+                <? } else { ?>
+                <?= bookings[i][j] ?>
+                <? } ?>
             </td>
             <? } ?>
         </tr>
@@ -104,15 +149,80 @@
             var teacherName = document.getElementById('teacherName').value;
             var classSubject = document.getElementById('classSubject').value;
             var descript = document.getElementById('descript').value;
-            var inputValue = document.getElementById('myInput').value;
-            google.script.run.updateSheet(booking_date, selected_className, teacherName, classSubject, descript);
+            //var inputValue = document.getElementById('myInput').value;
+            var selectedPeriods = Array.from(document.querySelectorAll('.period-checkbox:checked')).map(checkbox => checkbox.value);
+            var selectedGearRadioValue = document.querySelector('input[name="gearRadio"]:checked').value;
 
-            // Clear the input field
-            document.getElementById('myInput').value = '';
+            var selectedRadio = document.querySelector('input[name="gearRadio"]:checked');
+            var selectedGearRadioValue;
+            if (selectedRadio) {
+                selectedGearRadioValue = selectedRadio.value;
+            } else {
+                // Handle the case where no radio button is selected
+                alert('必須選擇要借的設備!');
+            }
+
+            google.script.run.withSuccessHandler(function () {
+                //document.getElementById('message').innerText = '新增成功!';
+                alert('新增成功!');
+            }).withFailureHandler(function (error) {
+                //document.getElementById('message').innerText = '新增失敗，錯誤信息：' + error.message;
+                alert('新增失敗，錯誤信息：' + error.message);
+            }).updateSheet(booking_date, selected_className, teacherName, classSubject, descript, selectedPeriods, selectedGearRadioValue);
+
+            // Clear all input fields
+            document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+            document.querySelectorAll('textarea').forEach(textarea => textarea.value = '');
+            document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
 
             // Prevent form from submitting and causing a page refresh
             return false;
         }
+
+
+        function updateBookingsByDate() {
+            console.log('run updateBookingsByDate')
+            var booking_date_string = document.getElementById('booking_date').value;
+            console.log('booking_date: ', booking_date_string)
+            // 修改標題的內容
+            var title = document.getElementById('bookings_title');
+            title.textContent = booking_date_string + " 已借用紀錄";
+
+            // 调用 getBookingsByDate 方法
+            google.script.run.withSuccessHandler(function (bookingsJson) {
+                var bookings = JSON.parse(bookingsJson);
+                console.log('bookings: ', bookings);
+
+                var tbody = document.getElementById('bookingsTable').getElementsByTagName('tbody')[0];
+                tbody.innerHTML = ''; // 清空舊資料
+                bookings.forEach(function (booking, i) {
+                    var row = document.createElement('tr'); // 建立新的行
+
+                    // 創建包含要顯示列索引的數組
+                    var columnsToShow = [1, 2, 7, 8, 10]; // 注意索引是基於0的，所以第2列的索引是1，第3列的索引是2，以此類推
+
+                    columnsToShow.forEach(function (columnIndex) {
+                        var cellData = booking[columnIndex];
+
+                        // 如果是第二列（索引為1），將日期轉換為期望的格式
+                        if (columnIndex === 1) {
+                            var date = new Date(cellData);
+                            cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                        }
+
+                        var cell = document.createElement('td'); // 建立新的列
+                        cell.textContent = cellData; // 插入數據
+                        row.appendChild(cell); // 把列添加到行中
+                    });
+                    tbody.appendChild(row); // 把行添加到表格中
+                });
+            }).withFailureHandler(function (error) {
+                alert('讀取預約日借用狀況失敗，錯誤信息：' + error.message);
+            }).getBookingsByDate(booking_date_string);
+
+            // ...
+        }
+
     </script>
 </body>
 

@@ -2,13 +2,17 @@ var SHEET_ID = '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw';
 var SPREADSHEET = SpreadsheetApp.openById(SHEET_ID);
 var bookings = SPREADSHEET.getSheetByName('借用列表');
 var gears = SPREADSHEET.getSheetByName('Gears');
+var periods = SPREADSHEET.getSheetByName('Periods');
 
 
 function doGet() {
   var template = HtmlService.createTemplateFromFile('test1.html');
   // template.data = getDataFromSheet();
-  template.data = getTop20Rows();
+  template.bookings = getTop20Bookings();
   template.gears = getGears();
+  template.periods = getPeriods();
+  template.email = Session.getActiveUser().getEmail();
+
   return template.evaluate();
 }
 
@@ -25,7 +29,13 @@ function getGears() {
   return data;
 }
 
-function getTop20Rows() {
+function getPeriods() {
+  var data = periods.getDataRange().getValues();
+  Logger.log(data);  // Log the returned data
+  return data;
+}
+
+function getTop20Bookings() {
   //var sheet = SPREADSHEET.getSheetByName('借用列表'); // 使用適當的工作表名稱替換 'Sheet1'
   var lastColumn = bookings.getLastColumn();
 
@@ -37,3 +47,4 @@ function getTop20Rows() {
 
   return data; // 此時的data是一個二維陣列，內含前20筆資料
 }
+
