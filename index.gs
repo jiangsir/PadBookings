@@ -6,12 +6,17 @@ var periods = SPREADSHEET.getSheetByName('Periods');
 
 
 function doGet() {
-  var template = HtmlService.createTemplateFromFile('test1.html');
+  var template = HtmlService.createTemplateFromFile('Bookings.html');
   // template.data = getDataFromSheet();
   template.bookings = getTop20Bookings();
   template.gears = getGears();
   template.periods = getPeriods();
   template.email = Session.getActiveUser().getEmail();
+  // 新增今日日期和今日借用紀錄
+  template.todayDate = getTodayDateString();
+  template.todayBookings = getTodayBookings();
+  // 傳遞 SHEET_ID 到 HTML
+  template.SHEET_ID = SHEET_ID;
 
   return template.evaluate();
 }
@@ -46,5 +51,21 @@ function getTop20Bookings() {
   var data = range.getValues();
 
   return data; // 此時的data是一個二維陣列，內含前20筆資料
+}
+
+// 新增函數：取得今日日期字串
+function getTodayDateString() {
+  var today = new Date();
+  var year = today.getFullYear();
+  var month = ('0' + (today.getMonth() + 1)).slice(-2);
+  var day = ('0' + today.getDate()).slice(-2);
+  return year + '-' + month + '-' + day;
+}
+
+// 新增函數：取得今日借用紀錄
+function getTodayBookings() {
+  var todayString = getTodayDateString();
+  var bookingsJson = getBookingsByDate(todayString);
+  return JSON.parse(bookingsJson);
 }
 
