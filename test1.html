@@ -13,7 +13,6 @@
     </h1>
     <p id="message"></p>
 
-    <h2>寫入 testinsert sheet</h2>
     <form id="myForm" onsubmit="return submitInput()">
         <label for="booking_date">選擇日期:</label>
         <input type="date" id="booking_date" v-model="selected_date" onchange="updateBookingsByDate()">
@@ -113,7 +112,7 @@
             <input type="text" v-show="selected_item === 'other'" v-model="otherItem" placeholder="請輸入其他設備">
         </div>
 
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit 寫入 testinsert sheet">
     </form>
 
     <hr>
