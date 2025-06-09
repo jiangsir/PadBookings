@@ -1,228 +1,438 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apps Script 測試</title>
+    <title>行動載具預約管理系統</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .form-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .period-checkbox,
+        .gear-radio {
+            margin-right: 10px;
+        }
+
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>gs 測試
-        <?= email ?>
-    </h1>
-    <p id="message"></p>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-gear-fill me-2"></i>設備借用管理系統
+            </a>
+            <span class="navbar-text text-white">
+                <i class="bi bi-person-circle me-1"></i><?= email ?>
+            </span>
+        </div>
+    </nav>
 
-    <h2>寫入 testinsert sheet</h2>
-    <form id="myForm" onsubmit="return submitInput()">
-        <label for="booking_date">選擇日期:</label>
-        <input type="date" id="booking_date" v-model="selected_date" onchange="updateBookingsByDate()">
-        <div></div>
-        <label for="booking_class">選擇班級:</label>
-        <select id="selected_className">
-            <option value="">--請選擇班級--</option>
-            <option value="國一仁">國一仁</option>
-            <option value="國一義">國一義</option>
-            <option value="國一禮">國一禮</option>
-            <option value="國一智">國一智</option>
-            <option value="國二仁">國二仁</option>
-            <option value="國二義">國二義</option>
-            <option value="國二禮">國二禮</option>
-            <option value="國二智">國二智</option>
-            <option value="國三仁">國三仁</option>
-            <option value="國三義">國三義</option>
-            <option value="國三禮">國三禮</option>
-            <option value="國三智">國三智</option>
-            <option value="高一仁">高一仁</option>
-            <option value="高一義">高一義</option>
-            <option value="高一禮">高一禮</option>
-            <option value="高一智">高一智</option>
-            <option value="高一信">高一信</option>
-            <option value="高一忠">高一忠</option>
-            <option value="高一孝">高一孝</option>
-            <option value="高一和">高一和</option>
-            <option value="高二仁">高二仁</option>
-            <option value="高二義">高二義</option>
-            <option value="高二禮">高二禮</option>
-            <option value="高二智">高二智</option>
-            <option value="高二信">高二信</option>
-            <option value="高二忠">高二忠</option>
-            <option value="高二孝">高二孝</option>
-            <option value="高二和">高二和</option>
-            <option value="高三仁">高三仁</option>
-            <option value="高三義">高三義</option>
-            <option value="高三禮">高三禮</option>
-            <option value="高三智">高三智</option>
-            <option value="高三信">高三信</option>
-            <option value="高三忠">高三忠</option>
-            <option value="高三孝">高三孝</option>
-            <option value="高三和">高三和</option>
-            <option value="other">其他(跨班跨年級)</option>
-        </select>
-        <input type="text" v-show="selected_className === 'other'" v-model="other_className" placeholder="請輸入班級">
+    <div class="container mt-4">
+        <!-- Alert Message -->
+        <div id="alertContainer"></div>
 
-        <div>任課教師/借用人</div>
-        <input type="text" id="teacherName">
-        <div>科目/課程 </div>
-        <input type="text" id="classSubject">
-        <div>其他說明</div>
-        <input type="text" id="descript">
+        <!-- Main Form -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-plus-circle-fill me-2"></i>新增設備借用
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="myForm" onsubmit="return submitInput()">
+                            <!-- Date and Class Selection -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="booking_date" class="form-label">
+                                        <i class="bi bi-calendar3 me-1"></i>選擇日期
+                                    </label>
+                                    <input type="date" class="form-control" id="booking_date" onchange="updateBookingsByDate()"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="selected_className" class="form-label">
+                                        <i class="bi bi-people-fill me-1"></i>選擇班級
+                                    </label>
+                                    <select class="form-select" id="selected_className" required>
+                                        <option value="">--請選擇班級--</option>
+                                        <optgroup label="國中部">
+                                            <option value="國一仁">國一仁</option>
+                                            <option value="國一義">國一義</option>
+                                            <option value="國一禮">國一禮</option>
+                                            <option value="國一智">國一智</option>
+                                            <option value="國二仁">國二仁</option>
+                                            <option value="國二義">國二義</option>
+                                            <option value="國二禮">國二禮</option>
+                                            <option value="國二智">國二智</option>
+                                            <option value="國三仁">國三仁</option>
+                                            <option value="國三義">國三義</option>
+                                            <option value="國三禮">國三禮</option>
+                                            <option value="國三智">國三智</option>
+                                        </optgroup>
+                                        <optgroup label="高中部">
+                                            <option value="高一仁">高一仁</option>
+                                            <option value="高一義">高一義</option>
+                                            <option value="高一禮">高一禮</option>
+                                            <option value="高一智">高一智</option>
+                                            <option value="高一信">高一信</option>
+                                            <option value="高一忠">高一忠</option>
+                                            <option value="高一孝">高一孝</option>
+                                            <option value="高一和">高一和</option>
+                                            <option value="高二仁">高二仁</option>
+                                            <option value="高二義">高二義</option>
+                                            <option value="高二禮">高二禮</option>
+                                            <option value="高二智">高二智</option>
+                                            <option value="高二信">高二信</option>
+                                            <option value="高二忠">高二忠</option>
+                                            <option value="高二孝">高二孝</option>
+                                            <option value="高二和">高二和</option>
+                                            <option value="高三仁">高三仁</option>
+                                            <option value="高三義">高三義</option>
+                                            <option value="高三禮">高三禮</option>
+                                            <option value="高三智">高三智</option>
+                                            <option value="高三信">高三信</option>
+                                            <option value="高三忠">高三忠</option>
+                                            <option value="高三孝">高三孝</option>
+                                            <option value="高三和">高三和</option>
+                                        </optgroup>
+                                        <option value="other">其他(跨班跨年級)</option>
+                                    </select>
+                                </div>
+                            </div>
 
-        <div id="periods">
-            <label for="booking_periods">節次:</label><br>
-            <div>
-                <? for (var i = 1; i < periods.length; i++) { ?>
-                <input class="period-checkbox" type="checkbox" id="<?= periods[i][1] ?>" value="<?= periods[i][2] ?>">
-                <label>
-                    <?= periods[i][2] ?>
-                </label><br>
-                <? } ?>
+                            <!-- Teacher and Subject -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="teacherName" class="form-label">
+                                        <i class="bi bi-person-badge me-1"></i>任課教師/借用人
+                                    </label>
+                                    <input type="text" class="form-control" id="teacherName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="classSubject" class="form-label">
+                                        <i class="bi bi-book me-1"></i>科目/課程
+                                    </label>
+                                    <input type="text" class="form-control" id="classSubject" required>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="descript" class="form-label">
+                                    <i class="bi bi-chat-left-text me-1"></i>其他說明
+                                </label>
+                                <textarea class="form-control" id="descript" rows="2"></textarea>
+                            </div>
+
+                            <!-- Periods Selection -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-clock me-1"></i>節次
+                                </label>
+                                <div class="border rounded p-3 bg-light">
+                                    <div class="row">
+                                        <? for (var i = 1; i < periods.length; i++) { ?>
+                                        <div class="col-md-3 col-sm-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input period-checkbox" type="checkbox" id="<?= periods[i][1] ?>"
+                                                    value="<?= periods[i][2] ?>">
+                                                <label class="form-check-label" for="<?= periods[i][1] ?>">
+                                                    <?= periods[i][2] ?>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <? } ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Equipment Selection -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-tools me-1"></i>設備
+                                </label>
+                                <div class="border rounded p-3 bg-light">
+                                    <div class="row">
+                                        <? for (var i = 1; i < gears.length; i++) { ?>
+                                        <div class="col-md-4 col-sm-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="gearRadio" id="gear<?=i?>"
+                                                    value="<?= gears[i][1] ?>">
+                                                <label class="form-check-label" for="gear<?=i?>">
+                                                    <?= gears[i][1] ?>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <? } ?>
+                                        <div class="col-md-4 col-sm-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="gearRadio" id="other" value="other">
+                                                <label class="form-check-label" for="other">
+                                                    其它
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="otherGearInput" style="display: none;">
+                                        <input type="text" class="form-control" placeholder="請輸入其他設備">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle-fill me-2"></i>提交借用申請
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Bookings -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calendar-check me-2"></i>
+                            <span id="bookings_title">選擇日期查看借用紀錄</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0" id="bookingsTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th><i class="bi bi-calendar3 me-1"></i>日期</th>
+                                        <th><i class="bi bi-clock me-1"></i>節次</th>
+                                        <th><i class="bi bi-person me-1"></i>教師</th>
+                                        <th><i class="bi bi-book me-1"></i>課程</th>
+                                        <th><i class="bi bi-tools me-1"></i>設備</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted p-4">
+                                            請選擇日期查看借用紀錄
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="bookingsByDate">
-            <h2 id="bookings_title"></h2>
-            <table id="bookingsTable">
-                <thead>
-                    <tr>
-                        <th>借用日期</th>
-                        <th>節次</th>
-                        <th>借用老師</th>
-                        <th>課程</th>
-                        <th>設備</th>
-                        <!-- 更多的欄位 -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- 数据将会在这里插入 -->
-                </tbody>
-            </table>
-        </div>
 
-        <div id="items">
-            <label for="booking_items">設備:</label><br>
-            <div>
-                <? for (var i = 1; i < gears.length; i++) { ?>
-                <input type="radio" id="gear<?=i?>" name="gearRadio" value="<?= gears[i][1] ?>">
-                <label>
-                    <?= gears[i][1] ?>
-                </label><br>
-                <? } ?>
+        <!-- All Bookings Table -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-ul me-2"></i>最近借用紀錄
+                </h5>
             </div>
-            <input type="radio" id="other" value="other" v-model="selected_item">
-            <label for="other">其它</label>
-            <input type="text" v-show="selected_item === 'other'" v-model="otherItem" placeholder="請輸入其他設備">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <? for (var j = 0; j < bookings[0].length; j++) { ?>
+                                <th><?= bookings[0][j] ?></th>
+                                <? } ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <? for (var i = 1; i < bookings.length; i++) { ?>
+                            <tr>
+                                <? for (var j = 0; j < bookings[i].length; j++) { ?>
+                                <td>
+                                    <? if (j == 0) { // timestamp column
+                                        var timeValue = new Date(bookings[i][j]);
+                                        var formattedTimeValue = Utilities.formatDate(timeValue, "GMT+8", "yyyy-MM-dd HH:mm:ss");
+                                        ?>
+                                    <?= formattedTimeValue ?>
+                                    <? } else if (j == 1) { // date column
+                                        var timeValue = new Date(bookings[i][j]);
+                                        var formattedTimeValue = Utilities.formatDate(timeValue, "GMT+8", "yyyy-MM-dd");
+                                        ?>
+                                    <?= formattedTimeValue ?>
+                                    <? } else { ?>
+                                    <?= bookings[i][j] ?>
+                                    <? } ?>
+                                </td>
+                                <? } ?>
+                            </tr>
+                            <? } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <input type="submit" value="Submit">
-    </form>
-
-    <hr>
-    <table>
-        <? for (var i = 0; i < bookings.length; i++) { ?>
-        <tr>
-            <? for (var j = 0; j < bookings[i].length; j++) { ?>
-            <td>
-                <? if (i>0 && j == 0) { // replace with your actual time column index
-                    var timeValue = new Date(bookings[i][j]);
-                    var formattedTimeValue = Utilities.formatDate(timeValue, "GMT+8", "yyyy-MM-dd HH:mm:ss");
-                    ?>
-                <?= formattedTimeValue ?>
-                <? } else if (i>0 && j == 1) { 
-                    var timeValue = new Date(bookings[i][j]);
-                    var formattedTimeValue = Utilities.formatDate(timeValue, "GMT+8", "yyyy-MM-dd");
-                    ?>
-                <?= formattedTimeValue ?>
-                <? } else { ?>
-                <?= bookings[i][j] ?>
-                <? } ?>
-            </td>
-            <? } ?>
-        </tr>
-        <? } ?>
-    </table>
-
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        function submitInput() {
-            var booking_date = document.getElementById('booking_date').value;
-            var selected_className = document.getElementById('selected_className').value;
-            var teacherName = document.getElementById('teacherName').value;
-            var classSubject = document.getElementById('classSubject').value;
-            var descript = document.getElementById('descript').value;
-            //var inputValue = document.getElementById('myInput').value;
-            var selectedPeriods = Array.from(document.querySelectorAll('.period-checkbox:checked')).map(checkbox => checkbox.value);
-            var selectedGearRadioValue = document.querySelector('input[name="gearRadio"]:checked').value;
+        // Show alert function
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHtml;
 
-            var selectedRadio = document.querySelector('input[name="gearRadio"]:checked');
-            var selectedGearRadioValue;
-            if (selectedRadio) {
-                selectedGearRadioValue = selectedRadio.value;
-            } else {
-                // Handle the case where no radio button is selected
-                alert('必須選擇要借的設備!');
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+
+        // Handle other gear input
+        document.querySelectorAll('input[name="gearRadio"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const otherInput = document.getElementById('otherGearInput');
+                if (this.value === 'other') {
+                    otherInput.style.display = 'block';
+                } else {
+                    otherInput.style.display = 'none';
+                }
+            });
+        });
+
+        function submitInput() {
+            const booking_date = document.getElementById('booking_date').value;
+            const selected_className = document.getElementById('selected_className').value;
+            const teacherName = document.getElementById('teacherName').value;
+            const classSubject = document.getElementById('classSubject').value;
+            const descript = document.getElementById('descript').value;
+            const selectedPeriods = Array.from(document.querySelectorAll('.period-checkbox:checked')).map(checkbox => checkbox.value);
+
+            // Validation
+            if (selectedPeriods.length === 0) {
+                showAlert('請至少選擇一個節次！', 'danger');
+                return false;
             }
 
+            const selectedRadio = document.querySelector('input[name="gearRadio"]:checked');
+            let selectedGearRadioValue;
+
+            if (selectedRadio) {
+                if (selectedRadio.value === 'other') {
+                    const otherInput = document.querySelector('#otherGearInput input');
+                    selectedGearRadioValue = otherInput.value.trim();
+                    if (!selectedGearRadioValue) {
+                        showAlert('請輸入其他設備名稱！', 'danger');
+                        return false;
+                    }
+                } else {
+                    selectedGearRadioValue = selectedRadio.value;
+                }
+            } else {
+                showAlert('必須選擇要借的設備！', 'danger');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>提交中...';
+
             google.script.run.withSuccessHandler(function () {
-                //document.getElementById('message').innerText = '新增成功!';
-                alert('新增成功!');
+                showAlert('新增成功！', 'success');
+                // Clear form
+                document.getElementById('myForm').reset();
+                document.getElementById('otherGearInput').style.display = 'none';
+                // Update bookings
+                updateBookingsByDate();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }).withFailureHandler(function (error) {
-                //document.getElementById('message').innerText = '新增失敗，錯誤信息：' + error.message;
-                alert('新增失敗，錯誤信息：' + error.message);
+                showAlert('新增失敗：' + error.message, 'danger');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }).updateSheet(booking_date, selected_className, teacherName, classSubject, descript, selectedPeriods, selectedGearRadioValue);
 
-            // Clear all input fields
-            document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
-            document.querySelectorAll('textarea').forEach(textarea => textarea.value = '');
-            document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-
-            // Prevent form from submitting and causing a page refresh
             return false;
         }
 
-
         function updateBookingsByDate() {
-            console.log('run updateBookingsByDate')
-            var booking_date_string = document.getElementById('booking_date').value;
-            console.log('booking_date: ', booking_date_string)
-            // 修改標題的內容
-            var title = document.getElementById('bookings_title');
-            title.textContent = booking_date_string + " 已借用紀錄";
+            const booking_date_string = document.getElementById('booking_date').value;
+            if (!booking_date_string) return;
 
-            // 调用 getBookingsByDate 方法
+            console.log('run updateBookingsByDate');
+            console.log('booking_date: ', booking_date_string);
+
+            const title = document.getElementById('bookings_title');
+            title.innerHTML = `<i class="bi bi-calendar-check me-2"></i>${booking_date_string} 已借用紀錄`;
+
             google.script.run.withSuccessHandler(function (bookingsJson) {
-                var bookings = JSON.parse(bookingsJson);
+                const bookings = JSON.parse(bookingsJson);
                 console.log('bookings: ', bookings);
 
-                var tbody = document.getElementById('bookingsTable').getElementsByTagName('tbody')[0];
-                tbody.innerHTML = ''; // 清空舊資料
-                bookings.forEach(function (booking, i) {
-                    var row = document.createElement('tr'); // 建立新的行
+                const tbody = document.getElementById('bookingsTable').getElementsByTagName('tbody')[0];
+                tbody.innerHTML = '';
 
-                    // 創建包含要顯示列索引的數組
-                    var columnsToShow = [1, 2, 7, 8, 10]; // 注意索引是基於0的，所以第2列的索引是1，第3列的索引是2，以此類推
+                if (bookings.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-muted p-4">
+                                <i class="bi bi-inbox me-2"></i>當天無借用紀錄
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    bookings.forEach(function (booking) {
+                        const row = document.createElement('tr');
+                        const columnsToShow = [1, 2, 7, 8, 10];
 
-                    columnsToShow.forEach(function (columnIndex) {
-                        var cellData = booking[columnIndex];
-
-                        // 如果是第二列（索引為1），將日期轉換為期望的格式
-                        if (columnIndex === 1) {
-                            var date = new Date(cellData);
-                            cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
-                        }
-
-                        var cell = document.createElement('td'); // 建立新的列
-                        cell.textContent = cellData; // 插入數據
-                        row.appendChild(cell); // 把列添加到行中
+                        columnsToShow.forEach(function (columnIndex) {
+                            let cellData = booking[columnIndex];
+                            if (columnIndex === 1) {
+                                const date = new Date(cellData);
+                                cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                            }
+                            const cell = document.createElement('td');
+                            cell.textContent = cellData;
+                            row.appendChild(cell);
+                        });
+                        tbody.appendChild(row);
                     });
-                    tbody.appendChild(row); // 把行添加到表格中
-                });
+                }
             }).withFailureHandler(function (error) {
-                alert('讀取預約日借用狀況失敗，錯誤信息：' + error.message);
+                showAlert('讀取預約日借用狀況失敗：' + error.message, 'danger');
             }).getBookingsByDate(booking_date_string);
-
-            // ...
         }
-
     </script>
 </body>
 
