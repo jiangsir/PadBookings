@@ -1,6 +1,7 @@
 var SHEET_ID = '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw';
 var SPREADSHEET = SpreadsheetApp.openById(SHEET_ID);
-var bookings = SPREADSHEET.getSheetByName('借用列表');
+//var bookings = SPREADSHEET.getSheetByName('借用列表');
+var bookings = SPREADSHEET.getSheetByName('Bookings');
 var gears = SPREADSHEET.getSheetByName('Gears');
 var periods = SPREADSHEET.getSheetByName('Periods');
 

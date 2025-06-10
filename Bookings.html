@@ -52,7 +52,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <i class="bi bi-gear-fill me-2"></i>設備借用管理系統
+                <i class="bi bi-gear-fill me-2"></i>平板預約管理系統
             </a>
             <span class="navbar-text text-white">
                 <i class="bi bi-person-circle me-1"></i><?= email ?>
@@ -71,7 +71,7 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h4 class="card-title mb-0">
-                            <i class="bi bi-plus-circle-fill me-2"></i>新增設備借用
+                            <i class="bi bi-plus-circle-fill me-2"></i>新增平板借用
                         </h4>
                     </div>
                     <div class="card-body">
@@ -189,29 +189,52 @@
                                 </label>
                                 <div class="border rounded p-3 bg-light" id="gearSelection">
                                     <div class="row" id="gearContainer">
-                                        <? for (var i = 1; i < gears.length; i++) { ?>
-                                        <div class="col-lg-4 col-md-6 col-sm-12 mb-2 gear-item" data-gear="<?= gears[i][1] ?>">
+                                        <? 
+                                        // gears 變數從 doGet 傳遞過來, 是 Gears 工作表的內容
+                                        // gears[0] 是標題列
+                                        // gears[i][0] = id (A欄)
+                                        // gears[i][1] = title (B欄)
+                                        // gears[i][2] = descript (C欄)
+                                        // gears[i][3] = visible (D欄)
+                                        for (var i = 1; i < gears.length; i++) { 
+                                            var gearId = gears[i][0]; // 用於 HTML id, 確保唯一性
+                                            var gearTitle = gears[i][1];
+                                            var gearDescript = gears[i][2];
+                                            var gearVisible = gears[i][3];
+
+                                            // 檢查 title 是否存在且 visible 是否為 TRUE
+                                            if (gearTitle && String(gearTitle).trim() !== '' && 
+                                                (gearVisible === true || String(gearVisible).toUpperCase() === 'TRUE')) { 
+                                        ?>
+                                        <div class="col-lg-6 col-md-6 col-sm-12 mb-2 gear-item" data-gear="<?= String(gearTitle).trim() ?>">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="gearRadio" 
-                                                       id="gear<?=i?>" value="<?= gears[i][1] ?>">
-                                                <label class="form-check-label" for="gear<?=i?>">
-                                                    <?= gears[i][1] ?>
+                                                       id="gear_<?= gearId ?>" value="<?= String(gearTitle).trim() ?>">
+                                                <label class="form-check-label" for="gear_<?= gearId ?>">
+                                                    <strong><?= gearTitle ?></strong>
+                                                    <? if (gearDescript && String(gearDescript).trim() !== '') { ?>
+                                                    <small class="text-muted d-block"><?= gearDescript ?></small>
+                                                    <? } ?>
                                                 </label>
                                             </div>
                                         </div>
-                                        <? } ?>
-                                        <div class="col-lg-4 col-md-6 col-sm-12 mb-2">
+                                        <? 
+                                            } // 結束 if (gearVisible && gearTitle exists)
+                                        } // 結束 for 迴圈
+                                        ?>
+                                        <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="gearRadio" 
-                                                       id="other" value="other">
-                                                <label class="form-check-label" for="other">
-                                                    其它
+                                                       id="otherGearRadio" value="other">
+                                                <label class="form-check-label" for="otherGearRadio">
+                                                    <strong>其它</strong>
+                                                    <small class="text-muted d-block">自訂名稱</small>
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="mt-2" id="otherGearInput" style="display: none;">
-                                        <input type="text" class="form-control" placeholder="請輸入其他設備">
+                                        <input type="text" class="form-control" placeholder="請輸入其他設備名稱">
                                     </div>
                                     <div class="availability-info text-muted mt-2" id="availabilityInfo">
                                         <i class="bi bi-info-circle me-1"></i>請先選擇日期和節次來檢查設備可用性
@@ -260,14 +283,30 @@
                                     </tr>
                                     <? } else { ?>
                                         <? todayBookings.forEach(function(booking) { 
-                                            var columnsToShow = [1, 2, 7, 8, 10]; // 假設這些是正確的索引
+                                            // 根據 Bookings 工作表的結構：借用日期, 班級, 借用教師, 課程名稱, 其它說明, 節次, 設備, timestamp
+                                            // 索引: 0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+                                            var columnsToShow = [0, 5, 2, 3, 6]; // 日期, 節次, 教師, 課程, 設備
                                         ?>
                                         <tr>
-                                            <? columnsToShow.forEach(function(columnIndex) { 
+                                            <? columnsToShow.forEach(function(columnIndex, displayIndex) { 
                                                 var cellData = booking[columnIndex];
-                                                if (columnIndex === 1) { // 日期欄位
-                                                    var date = new Date(cellData);
-                                                    cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                                                if (columnIndex === 0) { // 日期欄位
+                                                    // 如果是字串格式的日期 (例如 "2025-06-11")，直接顯示
+                                                    if (typeof cellData === 'string' && cellData.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                                        // 已經是 YYYY-MM-DD 格式，直接使用
+                                                    } else {
+                                                        // 嘗試解析為日期物件
+                                                        var date = new Date(cellData);
+                                                        if (!isNaN(date.getTime())) {
+                                                            cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                                                        } else {
+                                                            cellData = "日期錯誤";
+                                                        }
+                                                    }
+                                                } else if (columnIndex === 5) { // 節次欄位
+                                                    // 在節次後面加上班級資訊
+                                                    var className = booking[1]; // 班級在索引1
+                                                    cellData = cellData + " (" + className + ")";
                                                 }
                                             ?>
                                             <td class="text-truncate" title="<?= cellData ?>"><?= cellData ?></td>
@@ -340,6 +379,21 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // 頁面載入時設定今日日期
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設定今日日期
+            const today = new Date();
+            const todayString = today.getFullYear() + '-' + 
+                               ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
+                               ('0' + today.getDate()).slice(-2);
+            
+            const dateInput = document.getElementById('booking_date');
+            dateInput.value = todayString;
+            
+            // 觸發日期變更事件，更新右側面板
+            updateBookingsByDate();
+        });
+
         // Show alert function
         function showAlert(message, type = 'success') {
             const alertContainer = document.getElementById('alertContainer');
@@ -409,22 +463,29 @@
             const gearItems = document.querySelectorAll('.gear-item');
             
             gearItems.forEach(item => {
-                const gearName = item.dataset.gear;
-                const gearInfo = availableGears.find(gear => gear.name === gearName);
+                const gearNameFromDataAttribute = item.dataset.gear; // 這是 title
+                const gearInfo = availableGears.find(gear => gear.name === gearNameFromDataAttribute);
                 const input = item.querySelector('input');
                 const label = item.querySelector('label');
+
+                // 保存或獲取原始標籤內容 (包含 title 和 descript)
+                if (!item.dataset.originalLabel) {
+                    item.dataset.originalLabel = label.innerHTML;
+                }
+                const originalLabelContent = item.dataset.originalLabel;
                 
                 if (gearInfo && !gearInfo.available) {
-                    // 設備不可用
                     item.classList.add('gear-unavailable');
                     input.disabled = true;
-                    input.checked = false;
-                    label.innerHTML = gearName + ' <small class="text-danger">(已借用)</small>';
+                    if (input.checked) { 
+                        input.checked = false; // 如果已選中但不可用，取消選中
+                    }
+                    // 在原始內容後添加 "(已借用)" 標記
+                    label.innerHTML = originalLabelContent.replace(/<\/small>$/, ' (已借用)</small>').replace(/<\/strong>$/, ' <span class="text-danger">(已借用)</span></strong>');
                 } else {
-                    // 設備可用
                     item.classList.remove('gear-unavailable');
                     input.disabled = false;
-                    label.innerHTML = gearName;
+                    label.innerHTML = originalLabelContent;
                 }
             });
         }
@@ -434,13 +495,15 @@
             const gearItems = document.querySelectorAll('.gear-item');
             
             gearItems.forEach(item => {
-                const gearName = item.dataset.gear;
                 const input = item.querySelector('input');
                 const label = item.querySelector('label');
                 
                 item.classList.remove('gear-unavailable');
                 input.disabled = false;
-                label.innerHTML = gearName;
+                // 恢復原始標籤內容
+                if (item.dataset.originalLabel) {
+                    label.innerHTML = item.dataset.originalLabel;
+                }
             });
         }
         
@@ -491,12 +554,25 @@
 
             google.script.run.withSuccessHandler(function () {
                 showAlert('新增成功！', 'success');
+                
+                // 保存原本選擇的借用日期
+                const originalBookingDate = booking_date;
+                
                 // Clear form
                 document.getElementById('myForm').reset();
                 document.getElementById('otherGearInput').style.display = 'none';
                 resetGearAvailability();
-                // 更新今日借用紀錄
-                updateTodayBookings();
+                
+                // 重新設定日期選擇器為原本的借用日期
+                document.getElementById('booking_date').value = originalBookingDate;
+                
+                // 更新右側面板顯示該借用日期的紀錄，讓用戶看到新增的紀錄
+                updateBookingsByDate();
+                
+                // 重新檢查設備可用性（因為表單已重置，這會清空設備可用性提示）
+                resetGearAvailability();
+                updateAvailabilityInfo('請先選擇日期和節次來檢查設備可用性');
+                
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }).withFailureHandler(function (error) {
@@ -535,13 +611,28 @@
                 } else {
                     bookings.forEach(function (booking) {
                         const row = document.createElement('tr');
-                        const columnsToShow = [1, 2, 7, 8, 10]; // 假設這些是正確的索引
+                        // 根據 Bookings 工作表結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+                        const columnsToShow = [0, 5, 2, 3, 6]; // 日期, 節次, 教師, 課程, 設備
 
                         columnsToShow.forEach(function (columnIndex) {
                             let cellData = booking[columnIndex];
-                            if (columnIndex === 1) { // 日期欄位
-                                const date = new Date(cellData);
-                                cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                            if (columnIndex === 0) { // 日期欄位
+                                // 檢查是否已經是字串格式 (YYYY-MM-DD)
+                                if (typeof cellData === 'string' && cellData.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                    // 已經是正確格式，保持不變
+                                } else {
+                                    // 嘗試解析為日期
+                                    const date = new Date(cellData);
+                                    if (!isNaN(date.getTime())) {
+                                        cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                                    } else {
+                                        cellData = "日期錯誤";
+                                    }
+                                }
+                            } else if (columnIndex === 5) { // 節次欄位
+                                // 在節次後面加上班級資訊
+                                const className = booking[1]; // 班級在索引1
+                                cellData = cellData + " (" + className + ")";
                             }
                             const cell = document.createElement('td');
                             cell.className = 'text-truncate';
@@ -589,13 +680,28 @@
                 } else {
                     bookings.forEach(function (booking) {
                         const row = document.createElement('tr');
-                        const columnsToShow = [1, 2, 7, 8, 10]; // 假設這些是正確的索引
+                        // 根據 Bookings 工作表結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+                        const columnsToShow = [0, 5, 2, 3, 6]; // 日期, 節次, 教師, 課程, 設備
 
                         columnsToShow.forEach(function (columnIndex) {
                             let cellData = booking[columnIndex];
-                            if (columnIndex === 1) { // 日期欄位
-                                const date = new Date(cellData);
-                                cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                            if (columnIndex === 0) { // 日期欄位
+                                // 檢查是否已經是字串格式 (YYYY-MM-DD)
+                                if (typeof cellData === 'string' && cellData.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                    // 已經是正確格式，保持不變
+                                } else {
+                                    // 嘗試解析為日期
+                                    const date = new Date(cellData);
+                                    if (!isNaN(date.getTime())) {
+                                        cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                                    } else {
+                                        cellData = "日期錯誤";
+                                    }
+                                }
+                            } else if (columnIndex === 5) { // 節次欄位
+                                // 在節次後面加上班級資訊
+                                const className = booking[1]; // 班級在索引1
+                                cellData = cellData + " (" + className + ")";
                             }
                             const cell = document.createElement('td');
                             cell.className = 'text-truncate';

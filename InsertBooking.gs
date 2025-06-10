@@ -1,7 +1,8 @@
 var SHEET_ID = '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw';
 var SPREADSHEET = SpreadsheetApp.openById(SHEET_ID);
 var Bookings_sheet = SPREADSHEET.getSheetByName('Bookings');
-var bookings = SPREADSHEET.getSheetByName('借用列表');
+//var bookings = SPREADSHEET.getSheetByName('借用列表');
+var bookings = SPREADSHEET.getSheetByName('Bookings');
 var gears = SPREADSHEET.getSheetByName('Gears');
 var periods = SPREADSHEET.getSheetByName('Periods');
 
@@ -45,20 +46,27 @@ function getAvailableGearsForDateAndPeriods(date_string, selectedPeriodsFromUI) 
     Logger.log("getAvailableGearsForDateAndPeriods for date: " + targetDate.toDateString() + ", UI selected periods: " + selectedPeriodsFromUI.join(', '));
     
     // 獲取所有設備
-    var allGearsData = getGears(); // 假設 getGears() 返回包含標題的完整數據
+    var allGearsData = getGears(); // getGears() 來自 index.gs, 返回 Gears 工作表的所有資料
     var availableGears = [];
     
-    // 從第二行開始（跳過標題），只取設備名稱欄位
-    // 假設設備名稱在Gears工作表的第2欄(index 1)
+    // Gears 工作表欄位: A=id (索引0), B=title (索引1), C=descript (索引2), D=visible (索引3)
+    // 從第二行開始（跳過標題行）
     for (var i = 1; i < allGearsData.length; i++) {
-        if (allGearsData[i] && allGearsData[i][1]) { // 確保行和設備名稱存在
-            availableGears.push({
-                name: allGearsData[i][1].toString().trim(),
-                available: true
-            });
+        // 確保該行存在且 title (allGearsData[i][1]) 不為空
+        if (allGearsData[i] && allGearsData[i][1] != null && String(allGearsData[i][1]).trim() !== "") {
+            var gearTitle = String(allGearsData[i][1]).trim();
+            var isVisible = allGearsData[i][3]; // visible 欄位 (D欄, 索引3)
+            
+            // 只處理 visible 為 TRUE 的設備 (布林值 true 或字串 "TRUE")
+            if (isVisible === true || String(isVisible).toUpperCase() === 'TRUE') {
+                availableGears.push({
+                    name: gearTitle, // 使用 title 作為設備名稱
+                    available: true
+                });
+            }
         }
     }
-    Logger.log("Initial list of all gears: " + JSON.stringify(availableGears.map(g => g.name)));
+    Logger.log("Initial list of VISIBLE gears: " + JSON.stringify(availableGears.map(g => g.name)));
     
     // 獲取該日期的所有借用記錄
     var lastColumnBookings = bookings.getLastColumn();
