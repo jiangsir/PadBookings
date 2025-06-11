@@ -215,3 +215,79 @@ function getBookingsByDate(date_string) {
 
     return JSON.stringify(filteredData);
 }
+
+// 修正：取得特定日期的設備狀況
+function getGearStatusForDate(date_string) {
+    try {
+        var targetDate = new Date(date_string);
+        Logger.log("getGearStatusForDate for date: " + targetDate.toDateString());
+        
+        // 獲取所有設備
+        var allGearsData = getGears();
+        var gearStatusList = [];
+        var periods = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
+        
+        // 獲取該日期的所有借用記錄
+        var bookingsJson = getBookingsByDate(date_string);
+        var dayBookings = JSON.parse(bookingsJson);
+        
+        Logger.log("Day bookings count: " + dayBookings.length);
+        
+        // 從第二行開始處理設備（跳過標題行）
+        for (var i = 1; i < allGearsData.length; i++) {
+            if (allGearsData[i] && allGearsData[i][1] != null && String(allGearsData[i][1]).trim() !== "") {
+                var gearTitle = String(allGearsData[i][1]).trim();
+                var isVisible = allGearsData[i][3];
+                
+                Logger.log("Processing gear: " + gearTitle + ", visible: " + isVisible);
+                
+                var gearStatus = {
+                    name: gearTitle,
+                    visible: (isVisible === true || String(isVisible).toUpperCase() === 'TRUE'),
+                    bookedPeriods: [],
+                    bookingDetails: []
+                };
+                
+                // 檢查每個節次是否被借用
+                periods.forEach(function(period) {
+                    var isBooked = dayBookings.some(function(booking) {
+                        // booking 結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+                        var bookedGear = booking[6] ? String(booking[6]).trim() : '';
+                        var bookedPeriod = booking[5] ? String(booking[5]).trim() : '';
+                        
+                        return bookedGear === gearTitle && bookedPeriod === period;
+                    });
+                    
+                    if (isBooked) {
+                        gearStatus.bookedPeriods.push(period);
+                        
+                        // 找到借用詳情
+                        var bookingDetail = dayBookings.find(function(booking) {
+                            var bookedGear = booking[6] ? String(booking[6]).trim() : '';
+                            var bookedPeriod = booking[5] ? String(booking[5]).trim() : '';
+                            return bookedGear === gearTitle && bookedPeriod === period;
+                        });
+                        
+                        if (bookingDetail) {
+                            gearStatus.bookingDetails.push({
+                                period: period,
+                                className: bookingDetail[1],
+                                teacher: bookingDetail[2],
+                                subject: bookingDetail[3]
+                            });
+                        }
+                    }
+                });
+                
+                gearStatusList.push(gearStatus);
+            }
+        }
+        
+        Logger.log("Generated gear status list with " + gearStatusList.length + " items");
+        return JSON.stringify(gearStatusList);
+        
+    } catch (error) {
+        Logger.log("Error in getGearStatusForDate: " + error.toString());
+        return JSON.stringify([]);
+    }
+}

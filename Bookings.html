@@ -44,6 +44,103 @@
             font-size: 0.8em;
             margin-top: 5px;
         }
+
+        /* 設備狀況表格樣式 */
+        #gearStatusTable tbody tr {
+            height: 60px; /* 增加列高度到 60px */
+        }
+        
+        #gearStatusTable tbody td {
+            vertical-align: middle; /* 垂直置中 */
+            padding: 12px 8px; /* 增加內邊距 */
+            text-align: center;
+        }
+        
+        #gearStatusTable thead th {
+            vertical-align: middle; /* 標題列垂直置中 */
+            padding: 15px 10px; /* 增加標題列內邊距 */
+            text-align: center;
+        }
+        
+        /* 設備狀況徽章樣式 */
+        #gearStatusTable .gear-status-badge {
+            padding: 8px 10px; /* 增加徽章大小 */
+            font-size: 0.75em;
+            min-height: 40px; /* 增加徽章最小高度 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            border-radius: 8px;
+            margin: 2px;
+        }
+        
+        /* 設備名稱樣式 */
+        #gearStatusTable .gear-name {
+            font-size: 1em;  /* 從 0.7em 改為 1em */
+            font-weight: 600;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+        
+        /* 狀態文字樣式 */
+        #gearStatusTable .status-text {
+            font-size: 1em;  /* 從 0.65em 改為 1em */
+            font-weight: 500;
+        }
+        
+        /* 節次欄位樣式 */
+        #gearStatusTable .period-cell {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 1em;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            #gearStatusTable {
+                font-size: 0.75em;
+            }
+            
+            #gearStatusTable tbody tr {
+                height: 50px;
+            }
+            
+            #gearStatusTable .gear-status-badge {
+                padding: 6px 8px;
+                min-height: 32px;
+            }
+            
+            #gearStatusTable .gear-name {
+                font-size: 0.65em;
+            }
+            
+            #gearStatusTable .status-text {
+                font-size: 0.6em;
+            }
+        }
+
+        /* 新增：預約記錄行的懸停效果 */
+        .booking-row:hover {
+            background-color: #e3f2fd !important;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .booking-row {
+            transition: all 0.2s ease;
+        }
+        
+        .booking-row td {
+            position: relative;
+        }
+        
+        .booking-row:hover td {
+            border-color: #2196f3;
+        }
     </style>
 </head>
 
@@ -66,8 +163,8 @@
 
         <!-- Main Content Row -->
         <div class="row">
-            <!-- 左側表單區域 (約 60%) -->
-            <div class="col-lg-7"> 
+            <!-- 左側表單區域 (50%) -->
+            <div class="col-lg-6"> 
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h4 class="card-title mb-0">
@@ -80,7 +177,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="booking_date" class="form-label">
-                                        <i class="bi bi-calendar3 me-1"></i>選擇日期
+                                        <i class="bi bi-calendar3 me-1"></i>選擇日期 <small class="text-muted">(限30天內)</small>
                                     </label>
                                     <input type="date" class="form-control" id="booking_date" onchange="updateBookingsByDate(); checkGearAvailability();" required>
                                 </div>
@@ -151,14 +248,6 @@
                                 </div>
                             </div>
 
-                            <!-- Description -->
-                            <div class="mb-3">
-                                <label for="descript" class="form-label">
-                                    <i class="bi bi-chat-left-text me-1"></i>其他說明
-                                </label>
-                                <textarea class="form-control" id="descript" rows="2"></textarea>
-                            </div>
-
                             <!-- Periods Selection -->
                             <div class="mb-3">
                                 <label class="form-label">
@@ -167,7 +256,7 @@
                                 <div class="border rounded p-3 bg-light">
                                     <div class="row">
                                         <? for (var i = 1; i < periods.length; i++) { ?>
-                                        <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
+                                        <div class="col-lg-4 col-md-6 col-sm-6 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input period-checkbox" type="checkbox" 
                                                        id="<?= periods[i][1] ?>" value="<?= periods[i][2] ?>"
@@ -206,14 +295,14 @@
                                             if (gearTitle && String(gearTitle).trim() !== '' && 
                                                 (gearVisible === true || String(gearVisible).toUpperCase() === 'TRUE')) { 
                                         ?>
-                                        <div class="col-lg-6 col-md-6 col-sm-12 mb-2 gear-item" data-gear="<?= String(gearTitle).trim() ?>">
+                                        <div class="col-12 mb-2 gear-item" data-gear="<?= String(gearTitle).trim() ?>">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="gearRadio" 
                                                        id="gear_<?= gearId ?>" value="<?= String(gearTitle).trim() ?>">
                                                 <label class="form-check-label" for="gear_<?= gearId ?>">
-                                                    <strong><?= gearTitle ?></strong>
+                                                    <strong><?= String(gearTitle).trim() ?></strong>
                                                     <? if (gearDescript && String(gearDescript).trim() !== '') { ?>
-                                                    <small class="text-muted d-block"><?= gearDescript ?></small>
+                                                    <br><small class="text-muted"><?= String(gearDescript).trim() ?></small>
                                                     <? } ?>
                                                 </label>
                                             </div>
@@ -222,13 +311,13 @@
                                             } // 結束 if (gearVisible && gearTitle exists)
                                         } // 結束 for 迴圈
                                         ?>
-                                        <div class="col-lg-6 col-md-6 col-sm-12 mb-2">
+                                        <div class="col-12 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="gearRadio" 
                                                        id="otherGearRadio" value="other">
                                                 <label class="form-check-label" for="otherGearRadio">
-                                                    <strong>其它</strong>
-                                                    <small class="text-muted d-block">自訂名稱</small>
+                                                    <strong>其他設備</strong>
+                                                    <br><small class="text-muted">請在下方輸入設備名稱</small>
                                                 </label>
                                             </div>
                                         </div>
@@ -242,6 +331,14 @@
                                 </div>
                             </div>
 
+                            <!-- Description - 移動到設備下方 -->
+                            <div class="mb-3">
+                                <label for="descript" class="form-label">
+                                    <i class="bi bi-chat-left-text me-1"></i>其他說明
+                                </label>
+                                <textarea class="form-control" id="descript" rows="2" placeholder="週邊配件、特殊需求或其他說明事項"></textarea>
+                            </div>
+
                             <!-- Submit Button -->
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg">
@@ -253,25 +350,32 @@
                 </div>
             </div>
 
-            <!-- 右側面板區域 (約 40%) -->
-            <div class="col-lg-5">
+            <!-- 右側面板區域 (50%) -->
+            <div class="col-lg-6">
+                <!-- 已借用紀錄表格 -->
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-calendar-check me-2"></i>
                             <span id="bookings_title">今日借用紀錄 (<?= todayDate ?>)</span>
                         </h5>
+                        <div class="d-flex gap-2">
+                            <!-- 新增：日期選擇器用於查看特定日期的借用記錄 -->
+                            <input type="date" class="form-control form-control-sm" id="view_booking_date" 
+                                   style="width: 140px;" onchange="updateBookingsByDateFromView();" 
+                                   title="選擇要查看的日期">
+                        </div>
                     </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 500px;">
                             <table class="table table-striped table-hover mb-0" id="bookingsTable">
-                                <thead class="table-dark">
+                                <thead class="table-dark sticky-top">
                                     <tr>
-                                        <th style="width: 20%;"><i class="bi bi-calendar3 me-1"></i>日期</th>
-                                        <th style="width: 15%;"><i class="bi bi-clock me-1"></i>節次</th>
-                                        <th style="width: 20%;"><i class="bi bi-person me-1"></i>教師</th>
+                                        <th style="width: 15%;"><i class="bi bi-calendar3 me-1"></i>日期</th>
+                                        <th style="width: 20%;"><i class="bi bi-clock me-1"></i>節次</th>
+                                        <th style="width: 15%;"><i class="bi bi-person me-1"></i>教師</th>
                                         <th style="width: 20%;"><i class="bi bi-book me-1"></i>課程</th>
-                                        <th style="width: 25%;"><i class="bi bi-tools me-1"></i>設備</th>
+                                        <th style="width: 30%;"><i class="bi bi-tools me-1"></i>設備</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -282,20 +386,19 @@
                                         </td>
                                     </tr>
                                     <? } else { ?>
-                                        <? todayBookings.forEach(function(booking) { 
+                                        <? todayBookings.forEach(function(booking, bookingIndex) { 
                                             // 根據 Bookings 工作表的結構：借用日期, 班級, 借用教師, 課程名稱, 其它說明, 節次, 設備, timestamp
                                             // 索引: 0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
                                             var columnsToShow = [0, 5, 2, 3, 6]; // 日期, 節次, 教師, 課程, 設備
                                         ?>
-                                        <tr>
+                                        <tr class="booking-row" style="cursor: pointer;" data-booking='<?= JSON.stringify(booking) ?>' data-index="<?= bookingIndex ?>" title="點擊查看詳細資料">
                                             <? columnsToShow.forEach(function(columnIndex, displayIndex) { 
                                                 var cellData = booking[columnIndex];
-                                                if (columnIndex === 0) { // 日期欄位
-                                                    // 如果是字串格式的日期 (例如 "2025-06-11")，直接顯示
+                                                if (columnIndex === 0) {
+                                                    // 日期處理
                                                     if (typeof cellData === 'string' && cellData.match(/^\d{4}-\d{2}-\d{2}$/)) {
                                                         // 已經是 YYYY-MM-DD 格式，直接使用
                                                     } else {
-                                                        // 嘗試解析為日期物件
                                                         var date = new Date(cellData);
                                                         if (!isNaN(date.getTime())) {
                                                             cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
@@ -303,17 +406,63 @@
                                                             cellData = "日期錯誤";
                                                         }
                                                     }
-                                                } else if (columnIndex === 5) { // 節次欄位
-                                                    // 在節次後面加上班級資訊
-                                                    var className = booking[1]; // 班級在索引1
+                                                } else if (columnIndex === 5) {
+                                                    // 節次欄位，在節次後面加上班級資訊
+                                                    var className = booking[1];
                                                     cellData = cellData + " (" + className + ")";
                                                 }
                                             ?>
-                                            <td class="text-truncate" title="<?= cellData ?>"><?= cellData ?></td>
+                                            <td class="text-truncate" style="max-width: 120px;" title="<?= cellData ?>"><?= cellData ?></td>
                                             <? }); ?>
                                         </tr>
                                         <? }); ?>
                                     <? } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 設備借用狀況視覺化表格 -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-grid-3x3-gap me-2"></i>
+                            <span id="gear_status_title">設備借用狀況</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <!-- 圖例 -->
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle me-1"></i>可借用
+                                </span>
+                                <span class="badge bg-danger me-2">
+                                    <i class="bi bi-x-circle me-1"></i>已借用
+                                </span>
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-eye-slash me-1"></i>不可見
+                                </span>
+                            </small>
+                        </div>
+                        
+                        <!-- 設備狀況表格 -->
+                        <div class="table-responsive" style="max-height: 400px;">
+                            <table class="table table-sm table-bordered mb-0" id="gearStatusTable" style="font-size: 0.85em;">
+                                <thead class="table-dark sticky-top">
+                                    <tr id="gearStatusTableHeader" style="height: 50px;">
+                                        <th style="width: 15%; vertical-align: middle; text-align: center;">節次</th>
+                                        <!-- 設備欄位會用 JavaScript 動態生成 -->
+                                    </tr>
+                                </thead>
+                                <tbody id="gearStatusTableBody">
+                                    <!-- 這裡會用 JavaScript 動態生成內容 -->
+                                    <tr>
+                                        <td colspan="10" class="text-center text-muted p-4">
+                                            <i class="bi bi-hourglass-split me-2"></i>載入中...
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -379,7 +528,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // 頁面載入時設定今日日期
+        // 頁面載入時設定今日日期和日期限制
         document.addEventListener('DOMContentLoaded', function() {
             // 設定今日日期
             const today = new Date();
@@ -387,11 +536,43 @@
                                ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
                                ('0' + today.getDate()).slice(-2);
             
+            // 計算30天後的日期
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 30);
+            const maxDateString = maxDate.getFullYear() + '-' + 
+                                  ('0' + (maxDate.getMonth() + 1)).slice(-2) + '-' + 
+                                  ('0' + maxDate.getDate()).slice(-2);
+            
+            // 設定左側日期選擇器的限制
             const dateInput = document.getElementById('booking_date');
-            dateInput.value = todayString;
+            dateInput.min = todayString;  // 最早只能選今天
+            dateInput.max = maxDateString; // 最晚只能選30天後
+            dateInput.value = todayString; // 預設為今日
+            
+            // 設定右側日期選擇器的限制和預設值
+            const viewDateInput = document.getElementById('view_booking_date');
+            viewDateInput.min = todayString;
+            viewDateInput.max = maxDateString;
+            viewDateInput.value = todayString;
             
             // 觸發日期變更事件，更新右側面板
             updateBookingsByDate();
+            // 更新設備狀況表格
+            updateGearStatusTable();
+            
+            // 為所有 booking-row 添加點擊事件（使用事件委派）
+            document.addEventListener('click', function(e) {
+                const row = e.target.closest('.booking-row');
+                if (row && row.dataset.booking) {
+                    try {
+                        const booking = JSON.parse(row.dataset.booking);
+                        const index = parseInt(row.dataset.index);
+                        showBookingDetails(booking, index);
+                    } catch (error) {
+                        console.error('解析 booking 資料失敗:', error);
+                    }
+                }
+            });
         });
 
         // Show alert function
@@ -414,6 +595,33 @@
                     bsAlert.close();
                 }
             }, 5000);
+        }
+
+        // 日期驗證函數
+        function validateDateRange() {
+            const dateInput = document.getElementById('booking_date');
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            const maxDate = new Date();
+            
+            // 設定為當天的開始時間進行比較
+            today.setHours(0, 0, 0, 0);
+            maxDate.setDate(today.getDate() + 30);
+            maxDate.setHours(23, 59, 59, 999);
+            
+            if (selectedDate < today) {
+                showAlert('不能選擇過去的日期！', 'danger');
+                dateInput.value = today.toISOString().split('T')[0];
+                return false;
+            }
+            
+            if (selectedDate > maxDate) {
+                showAlert('只能預約30天內的日期！', 'danger');
+                dateInput.value = maxDate.toISOString().split('T')[0];
+                return false;
+            }
+            
+            return true;
         }
 
         // Handle other gear input
@@ -514,6 +722,11 @@
         }
 
         function submitInput() {
+            // 驗證日期範圍
+            if (!validateDateRange()) {
+                return false;
+            }
+            
             const booking_date = document.getElementById('booking_date').value;
             const selected_className = document.getElementById('selected_className').value;
             const teacherName = document.getElementById('teacherName').value;
@@ -563,11 +776,28 @@
                 document.getElementById('otherGearInput').style.display = 'none';
                 resetGearAvailability();
                 
-                // 重新設定日期選擇器為原本的借用日期
-                document.getElementById('booking_date').value = originalBookingDate;
+                // 重新設定日期選擇器的限制和預設值
+                const today = new Date();
+                const todayString = today.getFullYear() + '-' + 
+                                   ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
+                                   ('0' + today.getDate()).slice(-2);
+                
+                const maxDate = new Date();
+                maxDate.setDate(today.getDate() + 30);
+                const maxDateString = maxDate.getFullYear() + '-' + 
+                                      ('0' + (maxDate.getMonth() + 1)).slice(-2) + '-' + 
+                                      ('0' + maxDate.getDate()).slice(-2);
+                
+                const dateInput = document.getElementById('booking_date');
+                dateInput.min = todayString;
+                dateInput.max = maxDateString;
+                dateInput.value = originalBookingDate; // 設定為原本的借用日期
                 
                 // 更新右側面板顯示該借用日期的紀錄，讓用戶看到新增的紀錄
                 updateBookingsByDate();
+                
+                // 更新設備狀況表格，顯示該日期的設備狀況
+                updateGearStatusTable();
                 
                 // 重新檢查設備可用性（因為表單已重置，這會清空設備可用性提示）
                 resetGearAvailability();
@@ -575,6 +805,12 @@
                 
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
+                
+                // 顯示成功訊息並提示用戶查看右側面板
+                setTimeout(() => {
+                    showAlert(`成功新增借用記錄！請查看右側面板確認 ${originalBookingDate} 的借用狀況。`, 'success');
+                }, 500);
+                
             }).withFailureHandler(function (error) {
                 showAlert('新增失敗：' + error.message, 'danger');
                 submitBtn.disabled = false;
@@ -603,16 +839,24 @@
                 if (bookings.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="text-center text-muted p-4">
+                            <td colspan="6" class="text-center text-muted p-4">
                                 <i class="bi bi-inbox me-2"></i>今日無借用紀錄
                             </td>
                         </tr>
                     `;
                 } else {
-                    bookings.forEach(function (booking) {
+                    bookings.forEach(function (booking, bookingIndex) {
                         const row = document.createElement('tr');
-                        // 根據 Bookings 工作表結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
-                        const columnsToShow = [0, 5, 2, 3, 6]; // 日期, 節次, 教師, 課程, 設備
+                        // 新增：為行加入點擊樣式和事件
+                        row.style.cursor = 'pointer';
+                        row.className = 'booking-row';
+                        row.addEventListener('click', function() {
+                            showBookingDetails(booking, bookingIndex);
+                        });
+                        
+                        // 根據 Bookings 工作表的結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+                        // 索引: 0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+                        var columnsToShow = [0, 5, 2, 3, 6, 4]; // 日期, 節次, 教師, 課程, 設備, 其他說明
 
                         columnsToShow.forEach(function (columnIndex) {
                             let cellData = booking[columnIndex];
@@ -633,10 +877,15 @@
                                 // 在節次後面加上班級資訊
                                 const className = booking[1]; // 班級在索引1
                                 cellData = cellData + " (" + className + ")";
+                            } else if (columnIndex === 4) { // 其他說明欄位
+                                if (!cellData || cellData.trim() === '') {
+                                    cellData = '-';
+                                }
                             }
                             const cell = document.createElement('td');
                             cell.className = 'text-truncate';
-                            cell.title = cellData;
+                            cell.style.maxWidth = '150px';
+                            cell.title = '點擊查看詳細資料';
                             cell.textContent = cellData;
                             row.appendChild(cell);
                         });
@@ -662,6 +911,7 @@
             const title = document.getElementById('bookings_title');
             title.innerHTML = `<i class="bi bi-calendar-check me-2"></i>${booking_date_string} 已借用紀錄`;
 
+            // 更新借用記錄列表
             google.script.run.withSuccessHandler(function (bookingsJson) {
                 const bookings = JSON.parse(bookingsJson);
                 console.log('bookings: ', bookings);
@@ -672,25 +922,29 @@
                 if (bookings.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="text-center text-muted p-4">
+                            <td colspan="6" class="text-center text-muted p-4">
                                 <i class="bi bi-inbox me-2"></i>當天無借用紀錄
                             </td>
                         </tr>
                     `;
                 } else {
-                    bookings.forEach(function (booking) {
+                    bookings.forEach(function (booking, bookingIndex) {
                         const row = document.createElement('tr');
-                        // 根據 Bookings 工作表結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
-                        const columnsToShow = [0, 5, 2, 3, 6]; // 日期, 節次, 教師, 課程, 設備
+                        // 新增：為行加入點擊樣式和事件
+                        row.style.cursor = 'pointer';
+                        row.className = 'booking-row';
+                        row.addEventListener('click', function() {
+                            showBookingDetails(booking, bookingIndex);
+                        });
+                        
+                        const columnsToShow = [0, 5, 2, 3, 6, 4]; // 日期, 節次, 教師, 課程, 設備, 其他說明
 
                         columnsToShow.forEach(function (columnIndex) {
                             let cellData = booking[columnIndex];
-                            if (columnIndex === 0) { // 日期欄位
-                                // 檢查是否已經是字串格式 (YYYY-MM-DD)
+                            if (columnIndex === 0) {
                                 if (typeof cellData === 'string' && cellData.match(/^\d{4}-\d{2}-\d{2}$/)) {
                                     // 已經是正確格式，保持不變
                                 } else {
-                                    // 嘗試解析為日期
                                     const date = new Date(cellData);
                                     if (!isNaN(date.getTime())) {
                                         cellData = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
@@ -698,14 +952,18 @@
                                         cellData = "日期錯誤";
                                     }
                                 }
-                            } else if (columnIndex === 5) { // 節次欄位
-                                // 在節次後面加上班級資訊
-                                const className = booking[1]; // 班級在索引1
+                            } else if (columnIndex === 5) {
+                                const className = booking[1];
                                 cellData = cellData + " (" + className + ")";
+                            } else if (columnIndex === 4) { // 其他說明欄位
+                                if (!cellData || cellData.trim() === '') {
+                                    cellData = '-';
+                                }
                             }
                             const cell = document.createElement('td');
                             cell.className = 'text-truncate';
-                            cell.title = cellData;
+                            cell.style.maxWidth = '150px';
+                            cell.title = '點擊查看詳細資料';
                             cell.textContent = cellData;
                             row.appendChild(cell);
                         });
@@ -715,6 +973,345 @@
             }).withFailureHandler(function (error) {
                 showAlert('讀取預約日借用狀況失敗：' + error.message, 'danger');
             }).getBookingsByDate(booking_date_string);
+
+            // 同時更新設備狀況表格
+            updateGearStatusTable();
+        }
+
+        // 新增：顯示預約記錄詳細資料的功能
+        function showBookingDetails(booking, index) {
+            // booking 結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
+            
+            // 格式化日期
+            let formattedDate = booking[0];
+            if (typeof formattedDate !== 'string' || !formattedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const date = new Date(formattedDate);
+                if (!isNaN(date.getTime())) {
+                    formattedDate = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                }
+            }
+            
+            // 格式化時間戳記
+            let formattedTimestamp = '';
+            if (booking[7]) {
+                const timestamp = new Date(booking[7]);
+                if (!isNaN(timestamp.getTime())) {
+                    formattedTimestamp = timestamp.getFullYear() + "-" + 
+                                        ("0" + (timestamp.getMonth() + 1)).slice(-2) + "-" + 
+                                        ("0" + timestamp.getDate()).slice(-2) + " " +
+                                        ("0" + timestamp.getHours()).slice(-2) + ":" + 
+                                        ("0" + timestamp.getMinutes()).slice(-2) + ":" + 
+                                        ("0" + timestamp.getSeconds()).slice(-2);
+                }
+            }
+            
+            // 建立詳細資料內容
+            const modalContent = `
+                <div class="modal fade" id="bookingDetailModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-info-circle-fill me-2"></i>預約記錄詳細資料
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="card-title mb-0">
+                                                    <i class="bi bi-calendar3 me-1"></i>基本資訊
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-sm table-borderless">
+                                                    <tr>
+                                                        <td class="fw-bold text-muted" style="width: 35%;">借用日期：</td>
+                                                        <td>${formattedDate || '未提供'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold text-muted">節次：</td>
+                                                        <td>
+                                                            <span class="badge bg-primary">${booking[5] || '未提供'}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold text-muted">班級：</td>
+                                                        <td>
+                                                            <span class="badge bg-success">${booking[1] || '未提供'}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold text-muted">設備：</td>
+                                                        <td>
+                                                            <span class="badge bg-warning text-dark">${booking[6] || '未提供'}</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-header bg-light">
+                                                <h6 class="card-title mb-0">
+                                                    <i class="bi bi-person-badge me-1"></i>教學資訊
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-sm table-borderless">
+                                                    <tr>
+                                                        <td class="fw-bold text-muted" style="width: 35%;">任課教師：</td>
+                                                        <td>${booking[2] || '未提供'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold text-muted">科目/課程：</td>
+                                                        <td>${booking[3] || '未提供'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold text-muted">其他說明：</td>
+                                                        <td>
+                                                            ${booking[4] && booking[4].trim() !== '' ? 
+                                                                `<div class="alert alert-secondary py-2 px-3 mb-0 small">${booking[4]}</div>` : 
+                                                                '<span class="text-muted">無</span>'
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 系統資訊 -->
+                                <div class="row g-3 mt-2">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-header bg-light">
+                                                <h6 class="card-title mb-0">
+                                                    <i class="bi bi-gear me-1"></i>系統資訊
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-clock me-1"></i>建立時間：${formattedTimestamp || '未提供'}
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-hash me-1"></i>記錄編號：#${index + 1}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="bi bi-x-circle me-1"></i>關閉
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="copyBookingDetails('${encodeURIComponent(JSON.stringify(booking))}')">
+                                    <i class="bi bi-clipboard me-1"></i>複製資料
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 移除現有的 modal（如果存在）
+            const existingModal = document.getElementById('bookingDetailModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 將 modal 加入到頁面
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+            
+            // 顯示 modal
+            const modal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
+            modal.show();
+            
+            // 當 modal 關閉時移除元素
+            document.getElementById('bookingDetailModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+
+        // 新增：複製預約詳細資料到剪貼簿
+        function copyBookingDetails(encodedBookingData) {
+            try {
+                const booking = JSON.parse(decodeURIComponent(encodedBookingData));
+                
+                // 格式化日期
+                let formattedDate = booking[0];
+                if (typeof formattedDate !== 'string' || !formattedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    const date = new Date(formattedDate);
+                    if (!isNaN(date.getTime())) {
+                        formattedDate = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+                    }
+                }
+                
+                const copyText = `預約記錄詳細資料
+================
+借用日期：${formattedDate || '未提供'}
+節次：${booking[5] || '未提供'}
+班級：${booking[1] || '未提供'}
+任課教師：${booking[2] || '未提供'}
+科目/課程：${booking[3] || '未提供'}
+設備：${booking[6] || '未提供'}
+其他說明：${booking[4] && booking[4].trim() !== '' ? booking[4] : '無'}
+================`;
+                
+                // 使用 Clipboard API
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(copyText).then(() => {
+                        showAlert('預約資料已複製到剪貼簿！', 'success');
+                    }).catch(() => {
+                        fallbackCopyTextToClipboard(copyText);
+                    });
+                } else {
+                    fallbackCopyTextToClipboard(copyText);
+                }
+            } catch (error) {
+                showAlert('複製失敗：' + error.message, 'danger');
+            }
+        }
+
+        // 降級方案：當 Clipboard API 不可用時使用
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showAlert('預約資料已複製到剪貼簿！', 'success');
+            } catch (err) {
+                showAlert('複製失敗，請手動複製', 'warning');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // 新增設備狀況表格更新功能
+        function updateGearStatusTable() {
+            const booking_date = document.getElementById('booking_date').value;
+            if (!booking_date) {
+                return;
+            }
+            
+            // 更新標題
+            const title = document.getElementById('gear_status_title');
+            title.textContent = `${booking_date} 設備借用狀況`;
+            
+            google.script.run.withSuccessHandler(function(gearStatusJson) {
+                try {
+                    const gearStatusList = JSON.parse(gearStatusJson);
+                    renderGearStatusTable(gearStatusList);
+                } catch (error) {
+                    console.error('解析設備狀況資料失敗:', error);
+                    showAlert('載入設備狀況失敗', 'warning');
+                }
+            }).withFailureHandler(function(error) {
+                console.error('獲取設備狀況失敗:', error);
+                showAlert('獲取設備狀況失敗：' + error.message, 'danger');
+            }).getGearStatusForDate(booking_date);
+        }
+        
+        // 渲染設備狀況表格
+        function renderGearStatusTable(gearStatusList) {
+            const table = document.getElementById('gearStatusTable');
+            const thead = table.querySelector('thead');
+            const tbody = table.querySelector('tbody');
+            
+            // 節次列表
+            const periods = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
+            
+            // 獲取可見的設備
+            const visibleGears = gearStatusList.filter(gear => gear.visible);
+            
+            if (visibleGears.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="text-center text-muted p-4">
+                            <i class="bi bi-eye-slash me-2"></i>無可見設備
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // 重建標題行
+            let headerHtml = '<tr style="height: 60px;"><th style="width: 10%; vertical-align: middle; text-align: center;">節次</th>';
+            const columnWidth = Math.floor(90 / visibleGears.length);
+            
+            visibleGears.forEach(gear => {
+                headerHtml += `<th style="width: ${columnWidth}%; vertical-align: middle; text-align: center; word-wrap: break-word; font-size: 0.8em;">${gear.name}</th>`;
+            });
+            headerHtml += '</tr>';
+            thead.innerHTML = headerHtml;
+            
+            // 重建內容行
+            let bodyHtml = '';
+            periods.forEach(period => {
+                let rowHtml = `<tr><td class="period-cell">${period}</td>`;
+                
+                visibleGears.forEach(gear => {
+                    const isBooked = gear.bookedPeriods.includes(period);
+                    const bookingDetail = gear.bookingDetails.find(detail => detail.period === period);
+                    
+                    if (isBooked && bookingDetail) {
+                        rowHtml += `
+                            <td>
+                                <div class="gear-status-badge bg-danger text-white" title="已借用 - ${bookingDetail.className} ${bookingDetail.teacher} (${bookingDetail.subject})">
+                                    <div class="gear-name">${gear.name}</div>
+                                    <div class="status-text">已借用</div>
+                                    <div style="font-size: 0.6em; margin-top: 2px;">${bookingDetail.className}</div>
+                                </div>
+                            </td>
+                        `;
+                    } else {
+                        rowHtml += `
+                            <td>
+                                <div class="gear-status-badge bg-success text-white" title="可借用 - ${gear.name}">
+                                    <div class="gear-name">${gear.name}</div>
+                                    <div class="status-text">可借用</div>
+                                </div>
+                            </td>
+                        `;
+                    }
+                });
+                
+                rowHtml += '</tr>';
+                bodyHtml += rowHtml;
+            });
+            
+            tbody.innerHTML = bodyHtml;
+        }
+
+        // 新增：從右側日期選擇器更新借用記錄
+        function updateBookingsByDateFromView() {
+            const viewDateInput = document.getElementById('view_booking_date');
+            const leftDateInput = document.getElementById('booking_date');
+            
+            if (viewDateInput.value) {
+                // 同步左側的日期選擇器
+                leftDateInput.value = viewDateInput.value;
+                // 更新借用記錄和設備狀況
+                updateBookingsByDate();
+            }
         }
     </script>
 </body>

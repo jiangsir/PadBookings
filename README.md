@@ -24,3 +24,10 @@ https://script.google.com/
 https://script.google.com/home/projects/1SyJdsOSKKdEElKYxfLOcYSrEw7Babnc9KtcC9go8xgrm33hZOtHiK_3R/edit
 
 並取得 URL 觀看結果。
+
+要維持網址不變的方式:
+
+進入 AppsScript 專案
+點擊 管理部署作業->編輯->建立新版本->部署
+
+就可以創建新版本，但沿用 URL。
