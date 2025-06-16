@@ -766,7 +766,7 @@
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>提交中...';
 
             google.script.run.withSuccessHandler(function () {
-                showAlert('新增成功！', 'success');
+                showAlert('新增成功！已同步到日曆系統。', 'success');
                 
                 // 保存原本選擇的借用日期
                 const originalBookingDate = booking_date;
@@ -806,9 +806,9 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
                 
-                // 顯示成功訊息並提示用戶查看右側面板
+                // 顯示成功訊息並提示用戶查看右側面板和日曆
                 setTimeout(() => {
-                    showAlert(`成功新增借用記錄！請查看右側面板確認 ${originalBookingDate} 的借用狀況。`, 'success');
+                    showAlert(`成功新增借用記錄並已同步到日曆！請查看右側面板確認 ${originalBookingDate} 的借用狀況。`, 'success');
                 }, 500);
                 
             }).withFailureHandler(function (error) {

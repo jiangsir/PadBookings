@@ -7,13 +7,31 @@ var gears = SPREADSHEET.getSheetByName('Gears');
 var periods = SPREADSHEET.getSheetByName('Periods');
 
 function updateSheet(booking_date, selected_className, teacherName, classSubject, descript, selectedPeriods, selectedGearRadioValue) {
-    Logger.log("updateSheet: " + [booking_date, selected_className, teacherName, classSubject, descript, selectedPeriods, selectedGearRadioValue]);
+    try {
+        Logger.log("updateSheet: " + [booking_date, selected_className, teacherName, classSubject, descript, selectedPeriods, selectedGearRadioValue]);
 
-    // Use forEach() to iterate over each selected period
-    selectedPeriods.forEach(function (period) {
-        // Append a new row for each selected period, adding a timestamp at the end
-        Bookings_sheet.appendRow([booking_date, selected_className, teacherName, classSubject, descript, period, selectedGearRadioValue, new Date()]);
-    });
+        // Use forEach() to iterate over each selected period
+        selectedPeriods.forEach(function (period) {
+            // Append a new row for each selected period, adding a timestamp at the end
+            Bookings_sheet.appendRow([booking_date, selected_className, teacherName, classSubject, descript, period, selectedGearRadioValue, new Date()]);
+        });
+
+        // 新增：在成功新增資料後，同步創建日曆事件
+        try {
+            createCalendarEventsNew(booking_date, selected_className, teacherName, classSubject, descript, selectedPeriods, selectedGearRadioValue);
+            Logger.log("日曆事件創建成功");
+        } catch (calendarError) {
+            // 日曆創建失敗不影響主要的資料新增功能
+            Logger.log("日曆事件創建失敗（不影響資料新增）: " + calendarError.toString());
+            // 可以選擇是否向用戶顯示警告，或者靜默處理
+        }
+
+        return "資料新增成功";
+
+    } catch (error) {
+        Logger.log("updateSheet 發生錯誤: " + error.toString());
+        throw new Error("資料新增失敗: " + error.message);
+    }
 }
 
 // 除錯函數：檢查實際的欄位結構
