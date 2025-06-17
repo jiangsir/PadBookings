@@ -284,8 +284,12 @@ function getGearStatusForDate(date_string) {
                             period: period,
                             className: bookingDetail[1] || '未知班級',
                             teacher: bookingDetail[2] || '未知教師',
-                            subject: bookingDetail[3] || '未知課程'
+                            subject: bookingDetail[3] || '未知課程',
+                            description: bookingDetail[4] || '' // 確保其他說明欄位正確對應到索引4
                         });
+                        
+                        // Debug log 確認 description 有被正確讀取
+                        Logger.log("Booking detail for " + gearTitle + " at " + period + ": description = '" + (bookingDetail[4] || '') + "'");
                     }
                 });
                 

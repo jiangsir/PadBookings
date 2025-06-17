@@ -143,6 +143,133 @@
             margin-bottom: 2px;
         }
         
+        /* 新增：其他說明樣式 */
+        .borrowed-gear-description {
+            font-size: 0.9em;
+            color: #ffffff;
+            display: block;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            font-weight: 400;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* 響應式設計中的其他說明樣式 */
+        @media (max-width: 768px) {
+            .borrowed-gear-description {
+                font-size: 0.85em;
+                margin-top: 1px;
+                margin-bottom: 1px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .borrowed-gear-description {
+                font-size: 0.9em;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+        }
+        
+        /* 設備狀況表格樣式調整 */
+        #gearStatusTable {
+            font-size: 0.9em;
+        }
+        
+        #gearStatusTable tbody tr {
+            height: auto;
+            min-height: 50px;
+        }
+        
+        #gearStatusTable tbody td {
+            vertical-align: top;
+            padding: 12px;
+        }
+        
+        #gearStatusTable thead th {
+            vertical-align: middle; /* 標題列垂直置中 */
+            padding: 15px 10px; /* 增加標題列內邊距 */
+            text-align: center;
+        }
+        
+        /* 設備狀況徽章樣式調整 */
+        #gearStatusTable .gear-status-badge {
+            padding: 8px 10px; /* 增加徽章大小 */
+            font-size: 0.75em;
+            min-height: 40px; /* 增加徽章最小高度 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            border-radius: 8px;
+            margin: 2px;
+        }
+        
+        /* 設備名稱樣式調整 */
+        #gearStatusTable .gear-name {
+            font-size: 1em;  /* 從 0.7em 改為 1em */
+            font-weight: 600;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+        
+        /* 狀態文字樣式調整 */
+        #gearStatusTable .status-text {
+            font-size: 1em;  /* 從 0.65em 改為 1em */
+            font-weight: 500;
+        }
+        
+        /* 節次欄位樣式調整 */
+        #gearStatusTable .period-cell {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 1.1em;
+            border-right: 2px solid #dee2e6;
+            width: 10%; /* 從 15% 縮小到 10% */
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        /* 已借用設備欄位樣式調整 */
+        #gearStatusTable .borrowed-gears-cell {
+            width: 90%; /* 從 85% 增加到 90% */
+            background-color: #ffffff;
+            line-height: 1.2;
+        }
+        
+        .borrowed-gear-item {
+            display: inline-block;
+            margin: 1px 2px; /* 從 2px 4px 減少到 1px 2px */
+            padding: 4px 6px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: 500;
+            white-space: normal;
+            line-height: 1.4;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .borrowed-gear-details {
+            font-size: 1em;
+            opacity: 1;
+            margin-left: 0;
+            margin-top: 2px;
+            display: block;
+            font-weight: 400;
+        }
+        
+        .borrowed-gear-name {
+            font-size: 1em;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
         /* 響應式設計 */
         @media (max-width: 768px) {
             #gearStatusTable {
@@ -1343,7 +1470,7 @@ function updateGearStatusTable() {
     }).getGearStatusForDate(booking_date);
 }
 
-// 新增：渲染設備狀況表格
+// 修改：渲染設備狀況表格
 function renderGearStatusTable(gearStatusList) {
     const periods = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
     
@@ -1373,8 +1500,12 @@ function renderGearStatusTable(gearStatusList) {
                         className: bookingDetail.className,
                         teacher: bookingDetail.teacher,
                         subject: bookingDetail.subject,
+                        description: bookingDetail.description || '', // 確保 description 被正確傳遞
                         period: period
                     });
+                    
+                    // Debug log 確認 description 有被正確處理
+                    console.log('Borrowed gear:', gear.name, 'Description:', bookingDetail.description);
                 }
             }
         });
@@ -1404,6 +1535,8 @@ function renderGearStatusTable(gearStatusList) {
                     period: gear.period
                 };
                 
+                console.log('Rendering gear item with description:', gear.description); // Debug log
+                
                 rowHtml += `
                     <div class="borrowed-gear-item" 
                          style="cursor: pointer;"
@@ -1411,6 +1544,9 @@ function renderGearStatusTable(gearStatusList) {
                          title="設備：${gear.gearName}，班級：${gear.className}，教師：${gear.teacher}，課程：${gear.subject} - 點擊查看詳細資料">
                         <i class="bi bi-tablet me-1"></i>
                         <span class="borrowed-gear-name">${gear.gearName}</span>
+                        ${gear.description && gear.description.trim() !== '' ? 
+                          `<span class="borrowed-gear-description">${gear.description}</span>` : 
+                          ''}
                         <span class="borrowed-gear-details">
                             ${gear.className} - ${gear.teacher}
                         </span>
