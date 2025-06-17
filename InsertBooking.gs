@@ -1,4 +1,6 @@
 var SHEET_ID = '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw';
+var CALENDAR_ID = 'c_b13icnns9qbhs23he4tj8co8h8@group.calendar.google.com'; // 添加這行
+
 var SPREADSHEET = SpreadsheetApp.openById(SHEET_ID);
 var Bookings_sheet = SPREADSHEET.getSheetByName('Bookings');
 //var bookings = SPREADSHEET.getSheetByName('借用列表');
@@ -268,7 +270,7 @@ function getGearStatusForDate(date_string) {
                 
                 // 檢查每個節次是否被借用
                 periods.forEach(function(period) {
-                    var isBooked = dayBookings.some(function(booking) {
+                    var bookingDetail = dayBookings.find(function(booking) {
                         // booking 結構：0=借用日期, 1=班級, 2=借用教師, 3=課程名稱, 4=其它說明, 5=節次, 6=設備, 7=timestamp
                         var bookedGear = booking[6] ? String(booking[6]).trim() : '';
                         var bookedPeriod = booking[5] ? String(booking[5]).trim() : '';
@@ -276,24 +278,18 @@ function getGearStatusForDate(date_string) {
                         return bookedGear === gearTitle && bookedPeriod === period;
                     });
                     
-                    if (isBooked) {
+                    if (bookingDetail) {
                         gearStatus.bookedPeriods.push(period);
-                        
-                        // 找到借用詳情
-                        var bookingDetail = dayBookings.find(function(booking) {
-                            var bookedGear = booking[6] ? String(booking[6]).trim() : '';
-                            var bookedPeriod = booking[5] ? String(booking[5]).trim() : '';
-                            return bookedGear === gearTitle && bookedPeriod === period;
+                        gearStatus.bookingDetails.push({
+                            period: period,
+                            className: bookingDetail[1] || '未知班級',
+                            teacher: bookingDetail[2] || '未知教師',
+                            subject: bookingDetail[3] || '未知課程',
+                            description: bookingDetail[4] || '' // 確保其他說明欄位正確對應到索引4
                         });
                         
-                        if (bookingDetail) {
-                            gearStatus.bookingDetails.push({
-                                period: period,
-                                className: bookingDetail[1],
-                                teacher: bookingDetail[2],
-                                subject: bookingDetail[3]
-                            });
-                        }
+                        // Debug log 確認 description 有被正確讀取
+                        Logger.log("Booking detail for " + gearTitle + " at " + period + ": description = '" + (bookingDetail[4] || '') + "'");
                     }
                 });
                 
@@ -307,5 +303,197 @@ function getGearStatusForDate(date_string) {
     } catch (error) {
         Logger.log("Error in getGearStatusForDate: " + error.toString());
         return JSON.stringify([]);
+    }
+}
+
+// 新增：刪除預約記錄的函數
+function deleteBookingRecord(booking) {
+    try {
+        // 檢查權限
+        var currentUser = Session.getActiveUser().getEmail();
+        if (currentUser !== '555@tea.nknush.kh.edu.tw') {
+            throw new Error('權限不足：只有管理員可以刪除預約記錄');
+        }
+        
+        Logger.log("開始刪除預約記錄: " + JSON.stringify(booking));
+        
+        // 1. 從試算表中刪除記錄
+        var deleteResult = deleteFromSpreadsheet(booking);
+        Logger.log("試算表刪除結果: " + deleteResult);
+        
+        // 2. 從日曆中刪除相關事件
+        try {
+            var calendarResult = deleteFromCalendar(booking);
+            Logger.log("日曆刪除結果: " + calendarResult);
+        } catch (calendarError) {
+            Logger.log("日曆刪除失敗（不影響試算表刪除）: " + calendarError.toString());
+            // 日曆刪除失敗不影響整體操作
+        }
+        
+        return "預約記錄刪除成功";
+        
+    } catch (error) {
+        Logger.log("deleteBookingRecord 發生錯誤: " + error.toString());
+        throw new Error("刪除預約記錄失敗: " + error.message);
+    }
+}
+
+// 新增：從試算表中刪除記錄
+function deleteFromSpreadsheet(booking) {
+    try {
+        var lastRow = Bookings_sheet.getLastRow();
+        var lastColumn = Bookings_sheet.getLastColumn();
+        
+        if (lastRow <= 1) {
+            return "試算表中沒有資料可刪除";
+        }
+        
+        // 獲取所有資料
+        var range = Bookings_sheet.getRange(2, 1, lastRow - 1, lastColumn);
+        var data = range.getValues();
+        
+        // 尋找匹配的記錄
+        var matchedRows = [];
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            
+            // 比較關鍵欄位來確定是否為同一筆記錄
+            var rowDate = formatDateForComparison(row[0]); // 借用日期
+            var bookingDate = formatDateForComparison(booking[0]);
+            
+            if (rowDate === bookingDate &&
+                row[1] === booking[1] && // 班級
+                row[2] === booking[2] && // 教師
+                row[3] === booking[3] && // 課程
+                row[5] === booking[5] && // 節次
+                row[6] === booking[6]) { // 設備
+                
+                matchedRows.push(i + 2); // +2 因為陣列從0開始，且跳過標題行
+                Logger.log("找到匹配記錄於第 " + (i + 2) + " 行");
+            }
+        }
+        
+        if (matchedRows.length === 0) {
+            throw new Error("找不到匹配的預約記錄");
+        }
+        
+        // 從後往前刪除，避免行號變動問題
+        matchedRows.reverse();
+        var deletedCount = 0;
+        
+        for (var j = 0; j < matchedRows.length; j++) {
+            Bookings_sheet.deleteRow(matchedRows[j]);
+            deletedCount++;
+            Logger.log("已刪除第 " + matchedRows[j] + " 行");
+        }
+        
+        return "成功從試算表刪除 " + deletedCount + " 筆記錄";
+        
+    } catch (error) {
+        Logger.log("deleteFromSpreadsheet 發生錯誤: " + error.toString());
+        throw new Error("從試算表刪除記錄失敗: " + error.message);
+    }
+}
+
+// 修正：從日曆中刪除事件
+function deleteFromCalendar(booking) {
+    try {
+        // 檢查 CALENDAR_ID 是否定義
+        if (!CALENDAR_ID) {
+            Logger.log("CALENDAR_ID 未定義，跳過日曆事件刪除");
+            return "CALENDAR_ID 未定義，跳過日曆事件刪除";
+        }
+        
+        var cal = CalendarApp.getCalendarById(CALENDAR_ID);
+        if (!cal) {
+            Logger.log("無法存取日曆，跳過日曆事件刪除");
+            return "無法存取日曆，跳過日曆事件刪除";
+        }
+        
+        // 解析日期
+        var bookingDate = new Date(booking[0]);
+        var startDate = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate());
+        var endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // 加一天
+        
+        // 獲取該日期的所有事件
+        var events = cal.getEvents(startDate, endDate);
+        Logger.log("找到 " + events.length + " 個日曆事件");
+        
+        var deletedCount = 0;
+        var period = booking[5]; // 節次
+        var equipment = booking[6]; // 設備
+        var teacher = booking[2]; // 教師
+        var className = booking[1]; // 班級
+        
+        // 尋找匹配的事件
+        events.forEach(function(event) {
+            var title = event.getTitle();
+            
+            // 檢查事件標題是否包含關鍵資訊
+            if (title.includes(period) && 
+                title.includes(equipment) && 
+                title.includes(teacher) && 
+                title.includes(className)) {
+                
+                Logger.log("找到匹配的日曆事件: " + title);
+                event.deleteEvent();
+                deletedCount++;
+                Logger.log("已刪除日曆事件: " + title);
+            }
+        });
+        
+        if (deletedCount === 0) {
+            Logger.log("警告：沒有找到匹配的日曆事件");
+            return "沒有找到匹配的日曆事件";
+        }
+        
+        Utilities.sleep(500); // 等待日曆更新
+        return "成功從日曆刪除 " + deletedCount + " 個事件";
+        
+    } catch (error) {
+        Logger.log("deleteFromCalendar 發生錯誤: " + error.toString());
+        // 不要拋出錯誤，只記錄並返回訊息
+        return "從日曆刪除事件失敗: " + error.message;
+    }
+}
+
+// 新增：格式化日期以便比較
+function formatDateForComparison(dateValue) {
+    try {
+        var date = new Date(dateValue);
+        if (isNaN(date.getTime())) {
+            return "";
+        }
+        return date.getFullYear() + "-" + 
+               ("0" + (date.getMonth() + 1)).slice(-2) + "-" + 
+               ("0" + date.getDate()).slice(-2);
+    } catch (error) {
+        Logger.log("日期格式化錯誤: " + error.toString());
+        return "";
+    }
+}
+
+// 新增：測試刪除功能
+function testDeleteBooking() {
+    try {
+        // 測試資料（請根據實際情況修改）
+        var testBooking = [
+            "2024-06-13",  // 借用日期
+            "高一仁",      // 班級
+            "測試老師",    // 教師
+            "測試課程",    // 課程
+            "測試說明",    // 說明
+            "第1節",       // 節次
+            "iPad黑一車",  // 設備
+            new Date()     // 時間戳記
+        ];
+        
+        var result = deleteBookingRecord(testBooking);
+        Logger.log("測試結果: " + result);
+        return result;
+        
+    } catch (error) {
+        Logger.log("測試失敗: " + error.toString());
+        return "測試失敗: " + error.message;
     }
 }

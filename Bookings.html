@@ -46,14 +46,18 @@
         }
 
         /* 設備狀況表格樣式 */
+        #gearStatusTable {
+            font-size: 0.9em;
+        }
+        
         #gearStatusTable tbody tr {
-            height: 60px; /* 增加列高度到 60px */
+            height: auto;
+            min-height: 50px;
         }
         
         #gearStatusTable tbody td {
-            vertical-align: middle; /* 垂直置中 */
-            padding: 12px 8px; /* 增加內邊距 */
-            text-align: center;
+            vertical-align: top;
+            padding: 12px;
         }
         
         #gearStatusTable thead th {
@@ -94,8 +98,176 @@
         #gearStatusTable .period-cell {
             background-color: #f8f9fa;
             font-weight: bold;
-            font-size: 1em;
+            font-size: 1.1em;
             border-right: 2px solid #dee2e6;
+            width: 10%; /* 從 15% 縮小到 10% */
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        /* 已借用設備欄位樣式 */
+        #gearStatusTable .borrowed-gears-cell {
+            width: 90%; /* 從 85% 增加到 90% */
+            background-color: #ffffff;
+            line-height: 1.2;
+        }
+        
+        .borrowed-gear-item {
+            display: inline-block;
+            margin: 1px 2px; /* 從 2px 4px 減少到 1px 2px */
+            padding: 4px 6px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: 500;
+            white-space: normal;
+            line-height: 1.4;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .borrowed-gear-details {
+            font-size: 1em;
+            opacity: 1;
+            margin-left: 0;
+            margin-top: 2px;
+            display: block;
+            font-weight: 400;
+        }
+        
+        .borrowed-gear-name {
+            font-size: 1em;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        /* 新增：其他說明樣式 */
+        .borrowed-gear-description {
+            font-size: 0.9em;
+            color: #ffffff;
+            display: block;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            font-weight: 400;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* 響應式設計中的其他說明樣式 */
+        @media (max-width: 768px) {
+            .borrowed-gear-description {
+                font-size: 0.85em;
+                margin-top: 1px;
+                margin-bottom: 1px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .borrowed-gear-description {
+                font-size: 0.9em;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+        }
+        
+        /* 設備狀況表格樣式調整 */
+        #gearStatusTable {
+            font-size: 0.9em;
+        }
+        
+        #gearStatusTable tbody tr {
+            height: auto;
+            min-height: 50px;
+        }
+        
+        #gearStatusTable tbody td {
+            vertical-align: top;
+            padding: 12px;
+        }
+        
+        #gearStatusTable thead th {
+            vertical-align: middle; /* 標題列垂直置中 */
+            padding: 15px 10px; /* 增加標題列內邊距 */
+            text-align: center;
+        }
+        
+        /* 設備狀況徽章樣式調整 */
+        #gearStatusTable .gear-status-badge {
+            padding: 8px 10px; /* 增加徽章大小 */
+            font-size: 0.75em;
+            min-height: 40px; /* 增加徽章最小高度 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            border-radius: 8px;
+            margin: 2px;
+        }
+        
+        /* 設備名稱樣式調整 */
+        #gearStatusTable .gear-name {
+            font-size: 1em;  /* 從 0.7em 改為 1em */
+            font-weight: 600;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+        
+        /* 狀態文字樣式調整 */
+        #gearStatusTable .status-text {
+            font-size: 1em;  /* 從 0.65em 改為 1em */
+            font-weight: 500;
+        }
+        
+        /* 節次欄位樣式調整 */
+        #gearStatusTable .period-cell {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 1.1em;
+            border-right: 2px solid #dee2e6;
+            width: 10%; /* 從 15% 縮小到 10% */
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        /* 已借用設備欄位樣式調整 */
+        #gearStatusTable .borrowed-gears-cell {
+            width: 90%; /* 從 85% 增加到 90% */
+            background-color: #ffffff;
+            line-height: 1.2;
+        }
+        
+        .borrowed-gear-item {
+            display: inline-block;
+            margin: 1px 2px; /* 從 2px 4px 減少到 1px 2px */
+            padding: 4px 6px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: 500;
+            white-space: normal;
+            line-height: 1.4;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .borrowed-gear-details {
+            font-size: 1em;
+            opacity: 1;
+            margin-left: 0;
+            margin-top: 2px;
+            display: block;
+            font-weight: 400;
+        }
+        
+        .borrowed-gear-name {
+            font-size: 1em;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
         }
         
         /* 響應式設計 */
@@ -120,26 +292,60 @@
             #gearStatusTable .status-text {
                 font-size: 0.6em;
             }
-        }
-
-        /* 新增：預約記錄行的懸停效果 */
-        .booking-row:hover {
-            background-color: #e3f2fd !important;
-            transform: translateY(-1px);
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            
+            .borrowed-gear-item {
+                display: block;
+                margin: 1px 0; /* 從 2px 0 減少到 1px 0 */
+                text-align: center;
+                min-width: auto;
+                padding: 4px 6px;
+                font-size: 1em;
+            }
+            
+            .borrowed-gear-details {
+                display: block;
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 1em;
+            }
+            
+            .borrowed-gear-name {
+                font-size: 1em;
+                margin-bottom: 2px;
+            }
         }
         
-        .booking-row {
-            transition: all 0.2s ease;
+        /* 新增：為更大螢幕提供更大的字體 */
+        @media (min-width: 1200px) {
+            .borrowed-gear-item {
+                font-size: 1em;
+                padding: 2px 4px;
+                margin: 1px 2px; /* 保持一致的間距 */
+                min-width: 100px;
+            }
+            
+            .borrowed-gear-name {
+                font-size: 1em;
+                margin-bottom: 2px;
+            }
+            
+            .borrowed-gear-details {
+                font-size: 1em;
+                margin-top: 2px;
+            }
         }
         
-        .booking-row td {
-            position: relative;
+        /* 新增：進一步緊密排列的樣式 */
+        .borrowed-gears-cell {
+            width: 90%; /* 從 85% 增加到 90% */
+            background-color: #ffffff;
+            line-height: 1.2; /* 減少行高讓垂直間距更小 */
         }
         
-        .booking-row:hover td {
-            border-color: #2196f3;
+        .no-borrowed-gears {
+            color: #6c757d;
+            font-style: italic;
+            padding: 8px 0; /* 從 10px 0 減少到 8px 0 */
         }
     </style>
 </head>
@@ -352,7 +558,51 @@
 
             <!-- 右側面板區域 (50%) -->
             <div class="col-lg-6">
-                <!-- 已借用紀錄表格 -->
+                <!-- 設備借用狀況視覺化表格 - 移動到最上方 -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-grid-3x3-gap me-2"></i>
+                            <span id="gear_status_title">設備借用狀況</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <!-- 圖例 -->
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <span class="badge bg-danger me-2">
+                                    <i class="bi bi-x-circle me-1"></i>已借用設備
+                                </span>
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle me-1"></i>該節次無借用
+                                </span>
+                            </small>
+                        </div>
+                        
+                        <!-- 設備狀況表格 -->
+                        <div class="table-responsive" style="max-height: 500px;">
+                            <table class="table table-bordered mb-0" id="gearStatusTable">
+                                <thead class="table-dark sticky-top">
+                                    <tr>
+                                        <th style="width: 10%; text-align: center; vertical-align: middle;">節次</th> <!-- 從 15% 改為 10% -->
+                                        <th style="width: 90%; text-align: center; vertical-align: middle;">已借用設備</th> <!-- 從 85% 改為 90% -->
+                                    </tr>
+                                </thead>
+                                <tbody id="gearStatusTableBody">
+                                    <!-- 這裡會用 JavaScript 動態生成內容 -->
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted p-4">
+                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                            載入中...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已借用紀錄表格 - 移動到設備狀況下方 -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
@@ -412,57 +662,11 @@
                                                     cellData = cellData + " (" + className + ")";
                                                 }
                                             ?>
-                                            <td class="text-truncate" style="max-width: 120px;" title="<?= cellData ?>"><?= cellData ?></td>
+                                            <td class="text-truncate" style="max-width: 150px;" title="<?= cellData ?>"><?= cellData ?></td>
                                             <? }); ?>
                                         </tr>
                                         <? }); ?>
                                     <? } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 設備借用狀況視覺化表格 -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-grid-3x3-gap me-2"></i>
-                            <span id="gear_status_title">設備借用狀況</span>
-                        </h5>
-                    </div>
-                    <div class="card-body p-2">
-                        <!-- 圖例 -->
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                <span class="badge bg-success me-2">
-                                    <i class="bi bi-check-circle me-1"></i>可借用
-                                </span>
-                                <span class="badge bg-danger me-2">
-                                    <i class="bi bi-x-circle me-1"></i>已借用
-                                </span>
-                                <span class="badge bg-secondary">
-                                    <i class="bi bi-eye-slash me-1"></i>不可見
-                                </span>
-                            </small>
-                        </div>
-                        
-                        <!-- 設備狀況表格 -->
-                        <div class="table-responsive" style="max-height: 400px;">
-                            <table class="table table-sm table-bordered mb-0" id="gearStatusTable" style="font-size: 0.85em;">
-                                <thead class="table-dark sticky-top">
-                                    <tr id="gearStatusTableHeader" style="height: 50px;">
-                                        <th style="width: 15%; vertical-align: middle; text-align: center;">節次</th>
-                                        <!-- 設備欄位會用 JavaScript 動態生成 -->
-                                    </tr>
-                                </thead>
-                                <tbody id="gearStatusTableBody">
-                                    <!-- 這裡會用 JavaScript 動態生成內容 -->
-                                    <tr>
-                                        <td colspan="10" class="text-center text-muted p-4">
-                                            <i class="bi bi-hourglass-split me-2"></i>載入中...
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -893,7 +1097,7 @@
                     });
                 }
             }).withFailureHandler(function (error) {
-                showAlert('讀取今日借用狀況失敗：' + error.message, 'danger');
+                showAlert('讀取今日借狀況失敗：' + error.message, 'danger');
             }).getBookingsByDate(todayString);
         }
 
@@ -1004,6 +1208,9 @@
                                         ("0" + timestamp.getSeconds()).slice(-2);
                 }
             }
+            
+            // 檢查是否為管理員
+            const isAdmin = '<?= email ?>' === '555@tea.nknush.kh.edu.tw';
             
             // 建立詳細資料內容
             const modalContent = `
@@ -1119,6 +1326,11 @@
                                 <button type="button" class="btn btn-primary" onclick="copyBookingDetails('${encodeURIComponent(JSON.stringify(booking))}')">
                                     <i class="bi bi-clipboard me-1"></i>複製資料
                                 </button>
+                                ${isAdmin ? `
+                                <button type="button" class="btn btn-danger" onclick="confirmDeleteBooking('${encodeURIComponent(JSON.stringify(booking))}', ${index})">
+                                    <i class="bi bi-trash me-1"></i>刪除預約
+                                </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -1144,8 +1356,8 @@
             });
         }
 
-        // 新增：複製預約詳細資料到剪貼簿
-        function copyBookingDetails(encodedBookingData) {
+        // 新增：確認刪除預約的函數
+        function confirmDeleteBooking(encodedBookingData, index) {
             try {
                 const booking = JSON.parse(decodeURIComponent(encodedBookingData));
                 
@@ -1158,161 +1370,277 @@
                     }
                 }
                 
-                const copyText = `預約記錄詳細資料
-================
-借用日期：${formattedDate || '未提供'}
-節次：${booking[5] || '未提供'}
-班級：${booking[1] || '未提供'}
-任課教師：${booking[2] || '未提供'}
-科目/課程：${booking[3] || '未提供'}
-設備：${booking[6] || '未提供'}
-其他說明：${booking[4] && booking[4].trim() !== '' ? booking[4] : '無'}
-================`;
+                const confirmMessage = `
+確定要刪除以下預約記錄嗎？
+
+借用日期：${formattedDate}
+節次：${booking[5]}
+班級：${booking[1]}
+教師：${booking[2]}
+設備：${booking[6]}
+
+※ 此操作將同時刪除試算表記錄和日曆事件，且無法復原！
+        `.trim();
                 
-                // 使用 Clipboard API
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(copyText).then(() => {
-                        showAlert('預約資料已複製到剪貼簿！', 'success');
-                    }).catch(() => {
-                        fallbackCopyTextToClipboard(copyText);
-                    });
-                } else {
-                    fallbackCopyTextToClipboard(copyText);
+                if (confirm(confirmMessage)) {
+                    deleteBooking(booking, index);
                 }
             } catch (error) {
-                showAlert('複製失敗：' + error.message, 'danger');
+                showAlert('解析預約資料失敗：' + error.message, 'danger');
             }
         }
 
-        // 降級方案：當 Clipboard API 不可用時使用
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                showAlert('預約資料已複製到剪貼簿！', 'success');
-            } catch (err) {
-                showAlert('複製失敗，請手動複製', 'warning');
+        // 新增：執行刪除預約的函數
+        function deleteBooking(booking, index) {
+            // 顯示載入狀態
+            const deleteBtn = document.querySelector('.btn-danger');
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>刪除中...';
             }
             
-            document.body.removeChild(textArea);
-        }
-
-        // 新增設備狀況表格更新功能
-        function updateGearStatusTable() {
-            const booking_date = document.getElementById('booking_date').value;
-            if (!booking_date) {
-                return;
-            }
-            
-            // 更新標題
-            const title = document.getElementById('gear_status_title');
-            title.textContent = `${booking_date} 設備借用狀況`;
-            
-            google.script.run.withSuccessHandler(function(gearStatusJson) {
-                try {
-                    const gearStatusList = JSON.parse(gearStatusJson);
-                    renderGearStatusTable(gearStatusList);
-                } catch (error) {
-                    console.error('解析設備狀況資料失敗:', error);
-                    showAlert('載入設備狀況失敗', 'warning');
+            google.script.run.withSuccessHandler(function(result) {
+                showAlert('預約記錄已成功刪除！', 'success');
+                
+                // 關閉 modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'));
+                if (modal) {
+                    modal.hide();
                 }
+                
+                // 重新載入當前日期的預約記錄
+                updateBookingsByDate();
+                
+                // 更新設備狀況表格
+                updateGearStatusTable();
+                
             }).withFailureHandler(function(error) {
-                console.error('獲取設備狀況失敗:', error);
-                showAlert('獲取設備狀況失敗：' + error.message, 'danger');
-            }).getGearStatusForDate(booking_date);
+                showAlert('刪除失敗：' + error.message, 'danger');
+                
+                // 恢復按鈕狀態
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>刪除預約';
+                }
+            }).deleteBookingRecord(booking);
+        }
+
+        // 新增：更新設備狀況表格
+function updateGearStatusTable() {
+    let booking_date = document.getElementById('booking_date').value;
+    
+    if (!booking_date) {
+        // 如果沒有選擇日期，使用今日日期
+        const today = new Date();
+        booking_date = today.getFullYear() + '-' + 
+                      ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
+                      ('0' + today.getDate()).slice(-2);
+    }
+    
+    console.log('更新設備狀況表格，日期:', booking_date);
+    
+    // 更新標題
+    const title = document.getElementById('gear_status_title');
+    title.innerHTML = `<i class="bi bi-calendar-day me-2"></i>設備借用狀況 - ${booking_date}`;
+    
+    // 顯示載入中
+    const tbody = document.getElementById('gearStatusTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="2" class="text-center text-muted p-4">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                載入中...
+            </td>
+        </tr>
+    `;
+    
+    // 從後端獲取設備狀況
+    google.script.run.withSuccessHandler(function(gearStatusJson) {
+        try {
+            const gearStatusList = JSON.parse(gearStatusJson);
+            console.log('設備狀況資料:', gearStatusList);
+            renderGearStatusTable(gearStatusList);
+        } catch (error) {
+            console.error('解析設備狀況資料失敗:', error);
+            showGearStatusError('資料解析失敗');
+        }
+    }).withFailureHandler(function(error) {
+        console.error('獲取設備狀況失敗:', error);
+        showGearStatusError('載入設備狀況失敗：' + error.message);
+    }).getGearStatusForDate(booking_date);
+}
+
+// 修改：渲染設備狀況表格
+function renderGearStatusTable(gearStatusList) {
+    const periods = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
+    
+    // 過濾出可見的設備
+    const visibleGears = gearStatusList.filter(gear => gear.visible);
+    
+    if (visibleGears.length === 0) {
+        showGearStatusError('沒有可顯示的設備');
+        return;
+    }
+    
+    // 更新表格內容
+    const tbody = document.getElementById('gearStatusTableBody');
+    let bodyHtml = '';
+    
+    periods.forEach(period => {
+        // 收集該節次所有已借用的設備
+        const borrowedGears = [];
+        
+        visibleGears.forEach(gear => {
+            const isBooked = gear.bookedPeriods.includes(period);
+            if (isBooked) {
+                const bookingDetail = gear.bookingDetails.find(detail => detail.period === period);
+                if (bookingDetail) {
+                    borrowedGears.push({
+                        gearName: gear.name,
+                        className: bookingDetail.className,
+                        teacher: bookingDetail.teacher,
+                        subject: bookingDetail.subject,
+                        description: bookingDetail.description || '', // 確保 description 被正確傳遞
+                        period: period
+                    });
+                    
+                    // Debug log 確認 description 有被正確處理
+                    console.log('Borrowed gear:', gear.name, 'Description:', bookingDetail.description);
+                }
+            }
+        });
+        
+        // 生成該節次的行
+        let rowHtml = `<tr>`;
+        
+        // 節次欄位
+        rowHtml += `<td class="period-cell">${period}</td>`;
+        
+        // 已借用設備欄位
+        rowHtml += `<td class="borrowed-gears-cell">`;
+        
+        if (borrowedGears.length === 0) {
+            rowHtml += `<div class="no-borrowed-gears">
+                <i class="bi bi-check-circle text-success me-1"></i>
+                該節次無設備借用
+            </div>`;
+        } else {
+            borrowedGears.forEach((gear, gearIndex) => {
+                // 為每個已借用設備生成點擊事件的資料屬性
+                const gearBookingData = {
+                    gearName: gear.gearName,
+                    className: gear.className,
+                    teacher: gear.teacher,
+                    subject: gear.subject,
+                    period: gear.period
+                };
+                
+                console.log('Rendering gear item with description:', gear.description); // Debug log
+                
+                rowHtml += `
+                    <div class="borrowed-gear-item" 
+                         style="cursor: pointer;"
+                         data-gear-booking='${JSON.stringify(gearBookingData)}'
+                         title="設備：${gear.gearName}，班級：${gear.className}，教師：${gear.teacher}，課程：${gear.subject} - 點擊查看詳細資料">
+                        <i class="bi bi-tablet me-1"></i>
+                        <span class="borrowed-gear-name">${gear.gearName}</span>
+                        ${gear.description && gear.description.trim() !== '' ? 
+                          `<span class="borrowed-gear-description">${gear.description}</span>` : 
+                          ''}
+                        <span class="borrowed-gear-details">
+                            ${gear.className} - ${gear.teacher}
+                        </span>
+                    </div>
+                `;
+            });
         }
         
-        // 渲染設備狀況表格
-        function renderGearStatusTable(gearStatusList) {
-            const table = document.getElementById('gearStatusTable');
-            const thead = table.querySelector('thead');
-            const tbody = table.querySelector('tbody');
+        rowHtml += `</td></tr>`;
+        bodyHtml += rowHtml;
+    });
+    
+    tbody.innerHTML = bodyHtml;
+    
+    // 為新生成的已借用設備項目添加點擊事件
+    addClickEventsToBorrowedGears();
+}
+
+// 新增：為已借用設備項目添加點擊事件
+function addClickEventsToBorrowedGears() {
+    document.querySelectorAll('.borrowed-gear-item[data-gear-booking]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             
-            // 節次列表
-            const periods = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
-            
-            // 獲取可見的設備
-            const visibleGears = gearStatusList.filter(gear => gear.visible);
-            
-            if (visibleGears.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="10" class="text-center text-muted p-4">
-                            <i class="bi bi-eye-slash me-2"></i>無可見設備
-                        </td>
-                    </tr>
-                `;
-                return;
+            try {
+                const gearBookingData = JSON.parse(this.dataset.gearBooking);
+                showGearBookingDetails(gearBookingData);
+            } catch (error) {
+                console.error('解析設備預約資料失敗:', error);
+                showAlert('解析設備預約資料失敗', 'danger');
             }
+        });
+    });
+}
+
+// 新增：顯示設備預約詳細資料（使用現有的預約記錄詳細資料彈出視窗）
+function showGearBookingDetails(gearBookingData) {
+    // 需要根據設備預約資料查詢完整的預約記錄
+    const booking_date = document.getElementById('booking_date').value || getTodayDateString();
+    
+    console.log('查詢設備預約詳細資料:', gearBookingData);
+    
+    // 顯示載入狀態
+    showAlert('正在載入預約詳細資料...', 'info');
+    
+    // 從後端查詢完整的預約記錄
+    google.script.run.withSuccessHandler(function(bookingJson) {
+        try {
+            const bookings = JSON.parse(bookingJson);
+            console.log('查詢到的預約記錄:', bookings);
             
-            // 重建標題行
-            let headerHtml = '<tr style="height: 60px;"><th style="width: 10%; vertical-align: middle; text-align: center;">節次</th>';
-            const columnWidth = Math.floor(90 / visibleGears.length);
-            
-            visibleGears.forEach(gear => {
-                headerHtml += `<th style="width: ${columnWidth}%; vertical-align: middle; text-align: center; word-wrap: break-word; font-size: 0.8em;">${gear.name}</th>`;
+            // 尋找匹配的預約記錄
+            const matchedBooking = bookings.find(booking => {
+                return booking[5] === gearBookingData.period && // 節次匹配
+                       booking[6] === gearBookingData.gearName && // 設備匹配
+                       booking[2] === gearBookingData.teacher && // 教師匹配
+                       booking[1] === gearBookingData.className; // 班級匹配
             });
-            headerHtml += '</tr>';
-            thead.innerHTML = headerHtml;
             
-            // 重建內容行
-            let bodyHtml = '';
-            periods.forEach(period => {
-                let rowHtml = `<tr><td class="period-cell">${period}</td>`;
+            if (matchedBooking) {
+                // 找到匹配的記錄，使用現有的 showBookingDetails 函數
+                const index = bookings.indexOf(matchedBooking);
+                showBookingDetails(matchedBooking, index);
                 
-                visibleGears.forEach(gear => {
-                    const isBooked = gear.bookedPeriods.includes(period);
-                    const bookingDetail = gear.bookingDetails.find(detail => detail.period === period);
-                    
-                    if (isBooked && bookingDetail) {
-                        rowHtml += `
-                            <td>
-                                <div class="gear-status-badge bg-danger text-white" title="已借用 - ${bookingDetail.className} ${bookingDetail.teacher} (${bookingDetail.subject})">
-                                    <div class="gear-name">${gear.name}</div>
-                                    <div class="status-text">已借用</div>
-                                    <div style="font-size: 0.6em; margin-top: 2px;">${bookingDetail.className}</div>
-                                </div>
-                            </td>
-                        `;
-                    } else {
-                        rowHtml += `
-                            <td>
-                                <div class="gear-status-badge bg-success text-white" title="可借用 - ${gear.name}">
-                                    <div class="gear-name">${gear.name}</div>
-                                    <div class="status-text">可借用</div>
-                                </div>
-                            </td>
-                        `;
+                // 清除載入提示
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    if (alert.textContent.includes('正在載入預約詳細資料')) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
                     }
                 });
-                
-                rowHtml += '</tr>';
-                bodyHtml += rowHtml;
-            });
-            
-            tbody.innerHTML = bodyHtml;
-        }
-
-        // 新增：從右側日期選擇器更新借用記錄
-        function updateBookingsByDateFromView() {
-            const viewDateInput = document.getElementById('view_booking_date');
-            const leftDateInput = document.getElementById('booking_date');
-            
-            if (viewDateInput.value) {
-                // 同步左側的日期選擇器
-                leftDateInput.value = viewDateInput.value;
-                // 更新借用記錄和設備狀況
-                updateBookingsByDate();
+            } else {
+                showAlert('找不到完整的預約記錄，請到左側預約記錄中查看詳細資料', 'warning');
             }
+            
+        } catch (error) {
+            console.error('解析預約記錄失敗:', error);
+            showAlert('載入預約詳細資料失敗', 'danger');
         }
+    }).withFailureHandler(function(error) {
+        console.error('查詢預約記錄失敗:', error);
+        showAlert('載入設備預約詳細資料失敗：' + error.message, 'danger');
+    }).getBookingsByDate(booking_date);
+}
+
+// 新增：獲取今日日期字串的輔助函數
+function getTodayDateString() {
+    const today = new Date();
+    return today.getFullYear() + '-' + 
+           ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
+           ('0' + today.getDate()).slice(-2);
+}
     </script>
 </body>
 

@@ -9,6 +9,7 @@ conda env list
 conda create -n appsscript
 
 切換進入 appsscript
+
 conda activate appsscript
 
 使用 clasp 進行本地開發
@@ -17,7 +18,9 @@ npm install -g @google/clasp
 clasp login
 https://script.google.com/home/usersettings
 clasp create --type webapp --title "LibGear"
+
 clasp push --force
+
 https://script.google.com/
 
 手動部屬成"網頁應用程式"
