@@ -23,10 +23,7 @@ class GASApiClient {
             });
 
             const response = await fetch(url.toString(), {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+                method: 'GET'
             });
 
             if (!response.ok) {
@@ -58,9 +55,6 @@ class GASApiClient {
 
             const response = await fetch(this.apiUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify(payload)
             });
 
