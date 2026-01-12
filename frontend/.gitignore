@@ -1,0 +1,34 @@
+# 依賴
+node_modules/
+package-lock.json
+
+# 環境變數
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日誌
+*.log
+npm-debug.log*
+
+# 舊版本檔案（已分離）
+index.gs
+InsertBooking.gs
+CalendarIntegration.gs
+Convert.gs
+Bookings.html
+appsscript.json
+
+# 臨時文件
+*.tmp
+*.bak
