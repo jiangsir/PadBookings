@@ -16,6 +16,11 @@ var periods = SPREADSHEET.getSheetByName('Periods');
  * 處理 GET 請求
  */
 function doGet(e) {
+    // 處理 CORS 預檢請求
+    if (e.parameter.method === 'OPTIONS') {
+        return handleOptions();
+    }
+    
     try {
         var action = e.parameter.action;
         
@@ -79,13 +84,31 @@ function doPost(e) {
 }
 
 /**
- * 返回 JSON 格式的 HTTP 響應
+ * 處理 CORS 預檢請求
+ */
+function handleOptions() {
+    var output = ContentService.createTextOutput('');
+    output.setMimeType(ContentService.MimeType.TEXT);
+    output.setHeader('Access-Control-Allow-Origin', '*');
+    output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    output.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    output.setHeader('Access-Control-Max-Age', '3600');
+    return output;
+}
+
+/**
+ * 返回 JSON 格式的 HTTP 響應（含 CORS headers）
  */
 function jsonResponse(data, statusCode) {
     statusCode = statusCode || 200;
     
     var output = ContentService.createTextOutput(JSON.stringify(data));
     output.setMimeType(ContentService.MimeType.JSON);
+    
+    // 添加 CORS headers
+    output.setHeader('Access-Control-Allow-Origin', '*');
+    output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    output.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
     return output;
 }
