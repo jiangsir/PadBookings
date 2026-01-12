@@ -1,0 +1,232 @@
+.form-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.period-checkbox,
+.gear-radio {
+    margin-right: 10px;
+}
+
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.gear-unavailable {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.gear-unavailable label {
+    color: #6c757d !important;
+    text-decoration: line-through;
+}
+
+.availability-info {
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+/* 設備狀況表格樣式 */
+#gearStatusTable {
+    font-size: 0.9em;
+}
+
+#gearStatusTable tbody tr {
+    height: auto;
+    min-height: 50px;
+}
+
+#gearStatusTable tbody td {
+    vertical-align: top;
+    padding: 12px;
+}
+
+#gearStatusTable thead th {
+    vertical-align: middle;
+    padding: 15px 10px;
+    text-align: center;
+}
+
+/* 設備狀況徽章樣式 */
+#gearStatusTable .gear-status-badge {
+    padding: 8px 10px;
+    font-size: 0.75em;
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    border-radius: 8px;
+    margin: 2px;
+}
+
+/* 設備名稱樣式 */
+#gearStatusTable .gear-name {
+    font-size: 1em;
+    font-weight: 600;
+    margin-bottom: 2px;
+    opacity: 0.9;
+}
+
+/* 狀態文字樣式 */
+#gearStatusTable .status-text {
+    font-size: 1em;
+    font-weight: 500;
+}
+
+/* 節次欄位樣式 */
+#gearStatusTable .period-cell {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-right: 2px solid #dee2e6;
+    width: 10%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 已借用設備欄位樣式 */
+#gearStatusTable .borrowed-gears-cell {
+    width: 90%;
+    background-color: #ffffff;
+    line-height: 1.2;
+}
+
+.borrowed-gear-item {
+    display: inline-block;
+    margin: 1px 2px;
+    padding: 4px 6px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: 500;
+    white-space: normal;
+    line-height: 1.4;
+    text-align: center;
+    min-width: 100px;
+}
+
+.borrowed-gear-details {
+    font-size: 1em;
+    opacity: 1;
+    margin-left: 0;
+    margin-top: 2px;
+    display: block;
+    font-weight: 400;
+}
+
+.borrowed-gear-name {
+    font-size: 1em;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* 其他說明樣式 */
+.borrowed-gear-description {
+    font-size: 0.9em;
+    color: #ffffff;
+    display: block;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-weight: 400;
+    opacity: 0.9;
+    font-style: italic;
+}
+
+.borrowed-gears-cell {
+    width: 90%;
+    background-color: #ffffff;
+    line-height: 1.2;
+}
+
+.no-borrowed-gears {
+    color: #6c757d;
+    font-style: italic;
+    padding: 8px 0;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .borrowed-gear-description {
+        font-size: 0.85em;
+        margin-top: 1px;
+        margin-bottom: 1px;
+    }
+
+    #gearStatusTable {
+        font-size: 0.75em;
+    }
+    
+    #gearStatusTable tbody tr {
+        height: 50px;
+    }
+    
+    #gearStatusTable .gear-status-badge {
+        padding: 6px 8px;
+        min-height: 32px;
+    }
+    
+    #gearStatusTable .gear-name {
+        font-size: 0.65em;
+    }
+    
+    #gearStatusTable .status-text {
+        font-size: 0.6em;
+    }
+    
+    .borrowed-gear-item {
+        display: block;
+        margin: 1px 0;
+        text-align: center;
+        min-width: auto;
+        padding: 4px 6px;
+        font-size: 1em;
+    }
+    
+    .borrowed-gear-details {
+        display: block;
+        margin-left: 0;
+        margin-top: 2px;
+        font-size: 1em;
+    }
+    
+    .borrowed-gear-name {
+        font-size: 1em;
+        margin-bottom: 2px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .borrowed-gear-description {
+        font-size: 0.9em;
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+
+    .borrowed-gear-item {
+        font-size: 1em;
+        padding: 2px 4px;
+        margin: 1px 2px;
+        min-width: 100px;
+    }
+    
+    .borrowed-gear-name {
+        font-size: 1em;
+        margin-bottom: 2px;
+    }
+    
+    .borrowed-gear-details {
+        font-size: 1em;
+        margin-top: 2px;
+    }
+}
