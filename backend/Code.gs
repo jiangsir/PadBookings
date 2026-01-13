@@ -1,7 +1,17 @@
 /**
  * Google Apps Script API 後端
  * 處理所有 HTTP 請求並返回 JSON 格式的數據
+ * 
+ * 版本：v2.1.0
+ * 最後更新：2026-01-13
+ * 更新內容：
+ * - 優化 getGearStatusForDateAPI 只讀取最近 500 筆記錄
+ * - 添加版本日誌以便追蹤部署狀態
  */
+
+// 版本資訊
+var VERSION = 'v2.1.0';
+var LAST_UPDATE = '2026-01-13';
 
 // 配置
 var SHEET_ID = '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw';
@@ -55,6 +65,8 @@ function clearCache(key) {
 function doGet(e) {
     try {
         var action = e.parameter.action;
+        Logger.log('=== API Request [' + VERSION + '] ===');
+        Logger.log('Action: ' + action);
         
         switch(action) {
             case 'getGears':
@@ -586,6 +598,7 @@ function deleteFromCalendar(booking) {
  */
 function getGearStatusForDateAPI(dateString) {
     try {
+        Logger.log('[' + VERSION + '] getGearStatusForDateAPI called for date: ' + dateString);
         var targetDate = new Date(dateString);
         targetDate.setHours(0, 0, 0, 0);
         var targetTime = targetDate.getTime();
@@ -614,6 +627,7 @@ function getGearStatusForDateAPI(dateString) {
             var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
             var numRows = lastRow - startRow + 1;
             
+            Logger.log('Reading rows ' + startRow + ' to ' + lastRow + ' (total: ' + numRows + ' rows, table has ' + lastRow + ' rows)');
             var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
             
             // 單次遍歷處理所有記錄
@@ -659,7 +673,9 @@ function getUserInfoAPI() {
         return {
             email: email,
             isAdmin: isAdmin,
-            sheetId: SHEET_ID
+            sheetId: SHEET_ID,
+            version: VERSION,
+            lastUpdate: LAST_UPDATE
         };
     } catch (error) {
         Logger.log('getUserInfoAPI Error: ' + error.toString());
