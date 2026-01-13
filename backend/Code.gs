@@ -582,7 +582,7 @@ function deleteFromCalendar(booking) {
 }
 
 /**
- * 獲取特定日期的設備狀況（優化版本）
+ * 獲取特定日期的設備狀況（優化版本 - 限制讀取範圍）
  */
 function getGearStatusForDateAPI(dateString) {
     try {
@@ -604,11 +604,17 @@ function getGearStatusForDateAPI(dateString) {
             };
         });
         
-        // 獲取該日期的借用記錄（一次性讀取）
+        // 優化：只讀取最近 90 天的記錄（減少讀取量）
         var lastRow = bookings.getLastRow();
         if (lastRow > 1) {
             var lastColumn = bookings.getLastColumn();
-            var data = bookings.getRange(2, 1, lastRow - 1, lastColumn).getValues();
+            
+            // 計算要讀取的起始行（最多 500 行或從第 2 行開始）
+            var maxRowsToRead = 500;
+            var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
+            var numRows = lastRow - startRow + 1;
+            
+            var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
             
             // 單次遍歷處理所有記錄
             for (var i = 0; i < data.length; i++) {
