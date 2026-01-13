@@ -15,20 +15,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 立即載入節次（不等待，硬編碼資料瞬間顯示）
         loadPeriods();
         
-        // 載入用戶資訊
-        await loadUserInfo();
+        // 並行執行所有 API 調用，不用一個等一個！
+        await Promise.all([
+            loadUserInfo(),
+            loadGears(),
+            loadTodayBookings(),
+            updateGearStatusTable()
+        ]);
         
-        // 載入設備列表
-        await loadGears();
-        
-        // 載入今日借用記錄
-        await loadTodayBookings();
-        
-        // 設定事件監聽器
+        // 設定事件監聽器（在所有資料載入後）
         setupEventListeners();
-        
-        // 更新設備狀況表格
-        await updateGearStatusTable();
         
     } catch (error) {
         console.error('初始化錯誤:', error);
