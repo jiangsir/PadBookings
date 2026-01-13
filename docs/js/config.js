@@ -5,7 +5,7 @@ const API_CONFIG = {
     // 原本的URL https://script.google.com/macros/s/AKfycbxjxBk04wibqHNR5gBmQu954QPc3fP-FhB-rGo9Bn-amByy3OjIrbakWAkee8vXQqY/exec
     // 
     // https://script.google.com/macros/s/AKfycbwvM3kATp6hrPn7NXb6A8LgRcqtmVpcZKRr4KslYewPnoSxvYGMmY_Oj1dDG9gvftY/exec
-    API_URL: 'https://script.google.com/macros/s/AKfycbydFSNsZ0pnPHFYECk6egIOKcId1dFNPe_f642aSDACbrBuH1zH4qdE3e5oy6fca74/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbzYKrZ3NfWVT8_MpZKx2IAAa5wJCgLOOulv_ojtvNmpLF1DSTTFzO2OcV4OU13ccxA/exec',
     
     // Google Spreadsheet ID (用於開啟試算表連結)
     SHEET_ID: '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw',
