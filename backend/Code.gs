@@ -89,10 +89,8 @@ function jsonResponse(data, statusCode) {
     var output = ContentService.createTextOutput(JSON.stringify(data));
     output.setMimeType(ContentService.MimeType.JSON);
     
-    // 添加 CORS headers
-    output.setHeader('Access-Control-Allow-Origin', '*');
-    output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    output.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Note: Google Apps Script Web Apps 部署時會自動處理 CORS
+    // TextOutput 不支援 setHeader() 方法
     
     return output;
 }
