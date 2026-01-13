@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 初始化日期選擇器
         initializeDatePickers();
         
+        // 立即載入節次（不等待，硬編碼資料瞬間顯示）
+        loadPeriods();
+        
         // 載入用戶資訊
         await loadUserInfo();
         
         // 載入設備列表
         await loadGears();
-        
-        // 載入節次列表
-        await loadPeriods();
         
         // 載入今日借用記錄
         await loadTodayBookings();
@@ -131,7 +131,7 @@ async function loadGears() {
 /**
  * 載入節次列表（硬編碼版本 - 瞬間顯示，不需要 API 調用）
  */
-async function loadPeriods() {
+function loadPeriods() {
     try {
         // 硬編碼節次資料，不需要調用 API，瞬間顯示
         const periods = [
