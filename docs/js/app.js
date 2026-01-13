@@ -70,7 +70,17 @@ async function loadUserInfo() {
         currentUserEmail = response.email;
         isAdmin = response.isAdmin || false;
         
-        document.getElementById('userEmail').textContent = currentUserEmail;
+        // 顯示用戶郵箱和後端版本
+        const version = response.version || 'unknown';
+        const lastUpdate = response.lastUpdate || '';
+        document.getElementById('userEmail').textContent = 
+            `${currentUserEmail} | 後端版本: ${version}`;
+        
+        // 在 Console 輸出版本資訊以便確認
+        console.log('===================');
+        console.log('後端 API 版本:', version);
+        console.log('最後更新:', lastUpdate);
+        console.log('===================');
         
         // 更新試算表連結
         const sheetId = response.sheetId || API_CONFIG.SHEET_ID;
