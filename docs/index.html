@@ -258,43 +258,17 @@
             </div>
         </div>
 
-        <!-- All Bookings Table -->
+        <!-- 開啟資料表 -->
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mt-4">
-                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-list-ul me-2"></i>最近借用紀錄
-                        </h5>
-                        <a href="#" id="openSpreadsheetLink" target="_blank" class="btn btn-sm btn-light">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>開啟資料表
+                    <div class="card-body text-center py-4">
+                        <a href="#" id="openSpreadsheetLink" target="_blank" class="btn btn-lg btn-primary">
+                            <i class="bi bi-box-arrow-up-right me-2"></i>開啟資料表
                         </a>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover mb-0" id="allBookingsTable">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>借用日期</th>
-                                        <th>班級</th>
-                                        <th>借用教師</th>
-                                        <th>課程名稱</th>
-                                        <th>其它說明</th>
-                                        <th>節次</th>
-                                        <th>設備</th>
-                                        <th>提交時間</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted p-4">
-                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                                            載入中...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <p class="text-muted mt-2 mb-0">
+                            <small>點擊按鈕以在新分頁開啟 Google 試算表查看完整紀錄</small>
+                        </p>
                     </div>
                 </div>
             </div>

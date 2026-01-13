@@ -24,9 +24,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 載入今日借用記錄
         await loadTodayBookings();
         
-        // 載入所有借用記錄
-        await loadAllBookings();
-        
         // 設定事件監聽器
         setupEventListeners();
         
@@ -234,35 +231,12 @@ function createBookingRow(booking, index) {
 }
 
 /**
- * 載入所有借用記錄
+ * 載入所有借用記錄 (已移除)
+ * 功能已改為直接開啟 Google 試算表
  */
-async function loadAllBookings() {
-    try {
-        const response = await apiClient.getRecentBookings(20);
-        const bookings = response.bookings || [];
-        
-        const tbody = document.querySelector('#allBookingsTable tbody');
-        tbody.innerHTML = '';
-        
-        bookings.forEach(booking => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${booking.date}</td>
-                <td>${booking.className}</td>
-                <td>${booking.teacher}</td>
-                <td>${booking.subject}</td>
-                <td>${booking.description || '-'}</td>
-                <td>${booking.period}</td>
-                <td>${booking.gear}</td>
-                <td>${booking.timestamp}</td>
-            `;
-            tbody.appendChild(row);
-        });
-        
-    } catch (error) {
-        console.error('載入所有借用記錄失敗:', error);
-    }
-}
+// async function loadAllBookings() {
+//     功能已移除
+// }
 
 /**
  * 設定事件監聽器
@@ -344,7 +318,6 @@ async function handleFormSubmit(e) {
         // 重新載入數據
         await loadBookingsByDate(bookingData.date);
         await updateGearStatusTable();
-        await loadAllBookings();
         
     } catch (error) {
         console.error('提交失敗:', error);
@@ -789,7 +762,6 @@ async function confirmDeleteBooking(encodedBooking) {
         const date = document.getElementById('booking_date').value;
         await loadBookingsByDate(date);
         await updateGearStatusTable();
-        await loadAllBookings();
         
     } catch (error) {
         console.error('刪除失敗:', error);
