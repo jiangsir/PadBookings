@@ -2,15 +2,16 @@
  * Google Apps Script API 後端
  * 處理所有 HTTP 請求並返回 JSON 格式的數據
  * 
- * 版本：v2.1.0
+ * 版本：v2.2.0
  * 最後更新：2026-01-13
  * 更新內容：
- * - 優化 getGearStatusForDateAPI 只讀取最近 500 筆記錄
+ * - 全面優化所有 API 只讀取最近 500 筆記錄
+ * - getBookingsByDateAPI, checkGearAvailabilityAPI, deleteFromSpreadsheet 都已優化
  * - 添加版本日誌以便追蹤部署狀態
  */
 
 // 版本資訊
-var VERSION = 'v2.1.0';
+var VERSION = 'v2.2.0';
 var LAST_UPDATE = '2026-01-13';
 
 // 配置
@@ -215,12 +216,13 @@ function getPeriodsAPI() {
 }
 
 /**
- * 獲取特定日期的借用記錄
+ * 獲取特定日期的借用記錄（優化版本 - 限制讀取範圍）
  */
 function getBookingsByDateAPI(dateString) {
     try {
         var targetDate = new Date(dateString);
         targetDate.setHours(0, 0, 0, 0);
+        var targetTime = targetDate.getTime();
         
         var lastRow = bookings.getLastRow();
         if (lastRow <= 1) {
@@ -228,17 +230,24 @@ function getBookingsByDateAPI(dateString) {
         }
         
         var lastColumn = bookings.getLastColumn();
-        var data = bookings.getRange(2, 1, lastRow - 1, lastColumn).getValues();
+        
+        // 優化：只讀取最近 500 筆記錄
+        var maxRowsToRead = 500;
+        var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
+        var numRows = lastRow - startRow + 1;
+        
+        var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
         
         var result = [];
-        data.forEach(function(row) {
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
             var rowDate = new Date(row[0]);
             rowDate.setHours(0, 0, 0, 0);
             
-            if (rowDate.getTime() === targetDate.getTime()) {
+            if (rowDate.getTime() === targetTime) {
                 result.push(formatBookingRecord(row));
             }
-        });
+        }
         
         return { bookings: result };
     } catch (error) {
@@ -314,7 +323,7 @@ function formatTimestamp(timestamp) {
 }
 
 /**
- * 檢查設備可用性（優化版本）
+ * 檢查設備可用性（優化版本 - 限制讀取範圍）
  */
 function checkGearAvailabilityAPI(dateString, selectedPeriods) {
     try {
@@ -348,7 +357,13 @@ function checkGearAvailabilityAPI(dateString, selectedPeriods) {
         }
         
         var lastColumn = bookings.getLastColumn();
-        var data = bookings.getRange(2, 1, lastRow - 1, lastColumn).getValues();
+        
+        // 優化：只讀取最近 500 筆記錄
+        var maxRowsToRead = 500;
+        var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
+        var numRows = lastRow - startRow + 1;
+        
+        var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
         
         // 建立選擇節次的 Set 以加快查找
         var periodSet = {};
@@ -536,14 +551,20 @@ function deleteBookingAPI(booking) {
 }
 
 /**
- * 從試算表刪除記錄
+ * 從試算表刪除記錄（優化版本 - 限制讀取範圍）
  */
 function deleteFromSpreadsheet(booking) {
     var lastRow = bookings.getLastRow();
     if (lastRow <= 1) return;
     
     var lastColumn = bookings.getLastColumn();
-    var data = bookings.getRange(2, 1, lastRow - 1, lastColumn).getValues();
+    
+    // 優化：只讀取最近 500 筆記錄（刪除操作通常針對最近的記錄）
+    var maxRowsToRead = 500;
+    var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
+    var numRows = lastRow - startRow + 1;
+    
+    var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
     
     var matchedRows = [];
     for (var i = 0; i < data.length; i++) {
@@ -556,7 +577,8 @@ function deleteFromSpreadsheet(booking) {
             row[5] === booking.period &&
             row[6] === booking.gear) {
             
-            matchedRows.push(i + 2);
+            // 注意：行號需要加上 startRow 的偏移量
+            matchedRows.push(startRow + i);
         }
     }
     
