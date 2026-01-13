@@ -12,6 +12,43 @@ var bookings = SPREADSHEET.getSheetByName('Bookings');
 var gears = SPREADSHEET.getSheetByName('Gears');
 var periods = SPREADSHEET.getSheetByName('Periods');
 
+// 快取管理
+var CACHE_DURATION = 300; // 快取 5 分鐘
+var cache = CacheService.getScriptCache();
+
+/**
+ * 從快取獲取數據或執行函數
+ */
+function getCached(key, fetchFunction) {
+    var cached = cache.get(key);
+    if (cached) {
+        try {
+            return JSON.parse(cached);
+        } catch (e) {
+            Logger.log('Cache parse error: ' + e.toString());
+        }
+    }
+    
+    var data = fetchFunction();
+    try {
+        cache.put(key, JSON.stringify(data), CACHE_DURATION);
+    } catch (e) {
+        Logger.log('Cache storage error: ' + e.toString());
+    }
+    return data;
+}
+
+/**
+ * 清除特定快取
+ */
+function clearCache(key) {
+    if (key) {
+        cache.remove(key);
+    } else {
+        cache.removeAll(['gears', 'periods']);
+    }
+}
+
 /**
  * 處理 GET 請求
  */
@@ -98,25 +135,33 @@ function jsonResponse(data, statusCode) {
 // ==================== API 函數 ====================
 
 /**
- * 獲取設備列表
+ * 獲取設備列表（內部函數，無快取）
+ */
+function fetchGears() {
+    var data = gears.getDataRange().getValues();
+    var gearList = [];
+    
+    // 跳過標題行
+    for (var i = 1; i < data.length; i++) {
+        if (data[i][1]) { // 確保 title 存在
+            gearList.push({
+                id: data[i][0],
+                title: data[i][1],
+                descript: data[i][2] || '',
+                visible: data[i][3] === true || String(data[i][3]).toUpperCase() === 'TRUE'
+            });
+        }
+    }
+    
+    return gearList;
+}
+
+/**
+ * 獲取設備列表（帶快取）
  */
 function getGearsAPI() {
     try {
-        var data = gears.getDataRange().getValues();
-        var gearList = [];
-        
-        // 跳過標題行
-        for (var i = 1; i < data.length; i++) {
-            if (data[i][1]) { // 確保 title 存在
-                gearList.push({
-                    id: data[i][0],
-                    title: data[i][1],
-                    descript: data[i][2] || '',
-                    visible: data[i][3] === true || String(data[i][3]).toUpperCase() === 'TRUE'
-                });
-            }
-        }
-        
+        var gearList = getCached('gears', fetchGears);
         return { gears: gearList };
     } catch (error) {
         Logger.log('getGearsAPI Error: ' + error.toString());
@@ -125,23 +170,31 @@ function getGearsAPI() {
 }
 
 /**
- * 獲取節次列表
+ * 獲取節次列表（內部函數，無快取）
+ */
+function fetchPeriods() {
+    var data = periods.getDataRange().getValues();
+    var periodList = [];
+    
+    // 跳過標題行
+    for (var i = 1; i < data.length; i++) {
+        if (data[i][1]) { // 確保 id 存在
+            periodList.push({
+                id: data[i][1],
+                name: data[i][2]
+            });
+        }
+    }
+    
+    return periodList;
+}
+
+/**
+ * 獲取節次列表（帶快取）
  */
 function getPeriodsAPI() {
     try {
-        var data = periods.getDataRange().getValues();
-        var periodList = [];
-        
-        // 跳過標題行
-        for (var i = 1; i < data.length; i++) {
-            if (data[i][1]) { // 確保 id 存在
-                periodList.push({
-                    id: data[i][1],
-                    name: data[i][2]
-                });
-            }
-        }
-        
+        var periodList = getCached('periods', fetchPeriods);
         return { periods: periodList };
     } catch (error) {
         Logger.log('getPeriodsAPI Error: ' + error.toString());
@@ -249,59 +302,64 @@ function formatTimestamp(timestamp) {
 }
 
 /**
- * 檢查設備可用性
+ * 檢查設備可用性（優化版本）
  */
 function checkGearAvailabilityAPI(dateString, selectedPeriods) {
     try {
         var targetDate = new Date(dateString);
         targetDate.setHours(0, 0, 0, 0);
+        var targetTime = targetDate.getTime();
         
-        // 獲取所有可見設備
-        var allGears = getGearsAPI().gears;
-        var availableGears = allGears
-            .filter(function(gear) { return gear.visible; })
-            .map(function(gear) {
-                return {
+        // 使用快取的設備列表
+        var allGears = getCached('gears', fetchGears);
+        
+        // 建立可見設備的 Map
+        var gearMap = {};
+        allGears.forEach(function(gear) {
+            if (gear.visible) {
+                gearMap[gear.title] = {
                     name: gear.title,
                     available: true
                 };
-            });
+            }
+        });
+        
+        // 如果沒有可見設備，直接返回
+        if (Object.keys(gearMap).length === 0) {
+            return { gears: [] };
+        }
         
         // 獲取該日期的借用記錄
         var lastRow = bookings.getLastRow();
         if (lastRow <= 1) {
-            return { gears: availableGears };
+            return { gears: Object.values(gearMap) };
         }
         
         var lastColumn = bookings.getLastColumn();
         var data = bookings.getRange(2, 1, lastRow - 1, lastColumn).getValues();
         
-        // 檢查衝突
-        data.forEach(function(row) {
+        // 建立選擇節次的 Set 以加快查找
+        var periodSet = {};
+        selectedPeriods.forEach(function(p) { periodSet[p] = true; });
+        
+        // 單次遍歷檢查衝突
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
             var rowDate = new Date(row[0]);
             rowDate.setHours(0, 0, 0, 0);
             
-            if (rowDate.getTime() === targetDate.getTime()) {
+            if (rowDate.getTime() === targetTime) {
                 var bookedGear = String(row[6]).trim();
                 var bookedPeriod = String(row[5]).trim();
                 
-                // 檢查是否與選擇的節次衝突
-                var hasConflict = selectedPeriods.some(function(period) {
-                    return period === bookedPeriod;
-                });
-                
-                if (hasConflict) {
-                    var gear = availableGears.find(function(g) {
-                        return g.name === bookedGear;
-                    });
-                    if (gear) {
-                        gear.available = false;
-                    }
+                // 使用 Set 快速檢查節次衝突
+                if (periodSet[bookedPeriod] && gearMap[bookedGear]) {
+                    gearMap[bookedGear].available = false;
                 }
             }
-        });
+        }
         
-        return { gears: availableGears };
+        return { gears: Object.values(gearMap) };
     } catch (error) {
         Logger.log('checkGearAvailabilityAPI Error: ' + error.toString());
         throw error;
@@ -315,9 +373,9 @@ function submitBookingAPI(data) {
     try {
         var timestamp = new Date();
         
-        // 為每個節次創建一筆記錄
-        data.periods.forEach(function(period) {
-            bookings.appendRow([
+        // 批量準備資料
+        var rows = data.periods.map(function(period) {
+            return [
                 data.date,
                 data.className,
                 data.teacher,
@@ -326,8 +384,14 @@ function submitBookingAPI(data) {
                 period,
                 data.gear,
                 timestamp
-            ]);
+            ];
         });
+        
+        // 批量寫入（比多次 appendRow 快）
+        if (rows.length > 0) {
+            var lastRow = bookings.getLastRow();
+            bookings.getRange(lastRow + 1, 1, rows.length, 8).setValues(rows);
+        }
         
         // 創建日曆事件
         try {
@@ -518,46 +582,60 @@ function deleteFromCalendar(booking) {
 }
 
 /**
- * 獲取特定日期的設備狀況
+ * 獲取特定日期的設備狀況（優化版本）
  */
 function getGearStatusForDateAPI(dateString) {
     try {
-        var bookingsData = getBookingsByDateAPI(dateString).bookings;
-        var allGears = getGearsAPI().gears;
+        var targetDate = new Date(dateString);
+        targetDate.setHours(0, 0, 0, 0);
+        var targetTime = targetDate.getTime();
         
-        var periods = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
+        // 使用快取的設備列表
+        var allGears = getCached('gears', fetchGears);
         
-        var gearStatusList = [];
-        
+        // 建立設備狀態 Map
+        var gearStatusMap = {};
         allGears.forEach(function(gear) {
-            var gearStatus = {
+            gearStatusMap[gear.title] = {
                 name: gear.title,
                 visible: gear.visible,
                 bookedPeriods: [],
                 bookingDetails: []
             };
-            
-            periods.forEach(function(period) {
-                var booking = bookingsData.find(function(b) {
-                    return b.gear === gear.title && b.period === period;
-                });
-                
-                if (booking) {
-                    gearStatus.bookedPeriods.push(period);
-                    gearStatus.bookingDetails.push({
-                        period: period,
-                        className: booking.className,
-                        teacher: booking.teacher,
-                        subject: booking.subject,
-                        description: booking.description
-                    });
-                }
-            });
-            
-            gearStatusList.push(gearStatus);
         });
         
-        return { gearStatus: gearStatusList };
+        // 獲取該日期的借用記錄（一次性讀取）
+        var lastRow = bookings.getLastRow();
+        if (lastRow > 1) {
+            var lastColumn = bookings.getLastColumn();
+            var data = bookings.getRange(2, 1, lastRow - 1, lastColumn).getValues();
+            
+            // 單次遍歷處理所有記錄
+            for (var i = 0; i < data.length; i++) {
+                var row = data[i];
+                var rowDate = new Date(row[0]);
+                rowDate.setHours(0, 0, 0, 0);
+                
+                if (rowDate.getTime() === targetTime) {
+                    var gearName = String(row[6]).trim();
+                    var gearStatus = gearStatusMap[gearName];
+                    
+                    if (gearStatus) {
+                        var period = String(row[5]).trim();
+                        gearStatus.bookedPeriods.push(period);
+                        gearStatus.bookingDetails.push({
+                            period: period,
+                            className: row[1] || '',
+                            teacher: row[2] || '',
+                            subject: row[3] || '',
+                            description: row[4] || ''
+                        });
+                    }
+                }
+            }
+        }
+        
+        return { gearStatus: Object.values(gearStatusMap) };
     } catch (error) {
         Logger.log('getGearStatusForDateAPI Error: ' + error.toString());
         throw error;
