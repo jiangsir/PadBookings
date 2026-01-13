@@ -2,16 +2,16 @@
  * Google Apps Script API 後端
  * 處理所有 HTTP 請求並返回 JSON 格式的數據
  * 
- * 版本：v2.2.0
+ * 版本：v2.4.0
  * 最後更新：2026-01-13
  * 更新內容：
+ * - 刪除 getPeriods API（前端已硬編碼，不再需要）
+ * - 節次資料完全移除，減少程式碼大小和維護成本
  * - 全面優化所有 API 只讀取最近 500 筆記錄
- * - getBookingsByDateAPI, checkGearAvailabilityAPI, deleteFromSpreadsheet 都已優化
- * - 添加版本日誌以便追蹤部署狀態
  */
 
 // 版本資訊
-var VERSION = 'v2.2.0';
+var VERSION = 'v2.4.0';
 var LAST_UPDATE = '2026-01-13';
 
 // 配置
@@ -21,7 +21,7 @@ var CALENDAR_ID = 'c_b13icnns9qbhs23he4tj8co8h8@group.calendar.google.com';
 var SPREADSHEET = SpreadsheetApp.openById(SHEET_ID);
 var bookings = SPREADSHEET.getSheetByName('Bookings');
 var gears = SPREADSHEET.getSheetByName('Gears');
-var periods = SPREADSHEET.getSheetByName('Periods');
+// var periods = SPREADSHEET.getSheetByName('Periods'); // 已移除：節次資料改為硬編碼
 
 // 快取管理
 var CACHE_DURATION = 300; // 快取 5 分鐘
@@ -56,7 +56,8 @@ function clearCache(key) {
     if (key) {
         cache.remove(key);
     } else {
-        cache.removeAll(['gears', 'periods']);
+        // 只需要清除 gears 快取，periods 已改為硬編碼
+        cache.removeAll(['gears']);
     }
 }
 
@@ -72,9 +73,6 @@ function doGet(e) {
         switch(action) {
             case 'getGears':
                 return jsonResponse(getGearsAPI());
-                
-            case 'getPeriods':
-                return jsonResponse(getPeriodsAPI());
                 
             case 'getBookingsByDate':
                 return jsonResponse(getBookingsByDateAPI(e.parameter.date));
@@ -178,39 +176,6 @@ function getGearsAPI() {
         return { gears: gearList };
     } catch (error) {
         Logger.log('getGearsAPI Error: ' + error.toString());
-        throw error;
-    }
-}
-
-/**
- * 獲取節次列表（內部函數，無快取）
- */
-function fetchPeriods() {
-    var data = periods.getDataRange().getValues();
-    var periodList = [];
-    
-    // 跳過標題行
-    for (var i = 1; i < data.length; i++) {
-        if (data[i][1]) { // 確保 id 存在
-            periodList.push({
-                id: data[i][1],
-                name: data[i][2]
-            });
-        }
-    }
-    
-    return periodList;
-}
-
-/**
- * 獲取節次列表（帶快取）
- */
-function getPeriodsAPI() {
-    try {
-        var periodList = getCached('periods', fetchPeriods);
-        return { periods: periodList };
-    } catch (error) {
-        Logger.log('getPeriodsAPI Error: ' + error.toString());
         throw error;
     }
 }

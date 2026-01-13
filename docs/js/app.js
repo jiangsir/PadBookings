@@ -129,12 +129,21 @@ async function loadGears() {
 }
 
 /**
- * 載入節次列表
+ * 載入節次列表（硬編碼版本 - 瞬間顯示，不需要 API 調用）
  */
 async function loadPeriods() {
     try {
-        const response = await apiClient.getPeriods();
-        const periods = response.periods || [];
+        // 硬編碼節次資料，不需要調用 API，瞬間顯示
+        const periods = [
+            { id: 1, name: '第1節' },
+            { id: 2, name: '第2節' },
+            { id: 3, name: '第3節' },
+            { id: 4, name: '第4節' },
+            { id: 5, name: '午休' },
+            { id: 6, name: '第5節' },
+            { id: 7, name: '第6節' },
+            { id: 8, name: '第7節' }
+        ];
         
         const container = document.getElementById('periodsContainer');
         container.innerHTML = '';
