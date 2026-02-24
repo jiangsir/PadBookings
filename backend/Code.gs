@@ -11,8 +11,8 @@
  */
 
 // 版本資訊
-var VERSION = 'v2.4.0';
-var LAST_UPDATE = '2026-01-13';
+var VERSION = 'v2.4.1';
+var LAST_UPDATE = '2026-02-24';
 
 // 配置
 var SHEET_ID = '12NlutBJAq7HkIO7OE0E5UhpMqE7demarGTlVK5ZD1Sw';
