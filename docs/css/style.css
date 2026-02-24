@@ -15,7 +15,8 @@
 }
 
 .gear-status-table-wrap {
-    max-height: min(760px, calc(100vh - 180px));
+    max-height: none;
+    overflow-y: visible;
 }
 
 .navbar-brand {
@@ -157,6 +158,7 @@
 @media (max-width: 768px) {
     .gear-status-table-wrap {
         max-height: 60vh;
+        overflow-y: auto;
     }
 
     #gearStatusTable {
