@@ -4,7 +4,7 @@
  * 
  */
 // 版本資訊
-var VERSION = 'v2.4.2';
+var VERSION = 'v2.4.3';
 var LAST_UPDATE = '2026-02-24';
 
 // 配置
