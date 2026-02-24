@@ -350,50 +350,142 @@ function checkGearAvailabilityAPI(dateString, selectedPeriods) {
 }
 
 /**
- * 提交借用申請
+ * 創建日曆事件
  */
+function sanitizeTextField(value, fieldName, maxLength, required) {
+    var text = value == null ? '' : String(value).trim();
+    if (required && !text) {
+        throw new Error(fieldName + ' 不可空白');
+    }
+    if (maxLength && text.length > maxLength) {
+        throw new Error(fieldName + ' 長度不可超過 ' + maxLength + ' 字');
+    }
+    return text;
+}
+
+function validateBookingPayload(data) {
+    if (!data || typeof data !== 'object') {
+        throw new Error('無效的預約資料');
+    }
+    var date = String(data.date || '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw new Error('日期格式錯誤');
+    }
+    var className = sanitizeTextField(data.className, '班級', 50, true);
+    var teacher = sanitizeTextField(data.teacher, '教師', 50, true);
+    var subject = sanitizeTextField(data.subject, '科目/課程', 100, true);
+    var description = sanitizeTextField(data.description, '其他說明', 500, false);
+    var gear = sanitizeTextField(data.gear, '設備', 100, true);
+
+    if (!Array.isArray(data.periods) || data.periods.length === 0) {
+        throw new Error('至少需要選擇一個節次');
+    }
+    if (data.periods.length > 8) {
+        throw new Error('節次數量異常');
+    }
+
+    var periodSeen = {};
+    var periods = [];
+    data.periods.forEach(function(p) {
+        var period = String(p || '').trim();
+        if (!period) {
+            throw new Error('節次不可空白');
+        }
+        if (!getPeriodTimeInfo(period)) {
+            throw new Error('無效的節次：' + period);
+        }
+        if (!periodSeen[period]) {
+            periodSeen[period] = true;
+            periods.push(period);
+        }
+    });
+
+    return {
+        date: date,
+        className: className,
+        teacher: teacher,
+        subject: subject,
+        description: description,
+        periods: periods,
+        gear: gear
+    };
+}
+
+function ensureNoBookingConflict(dateString, selectedPeriods, gearName) {
+    var lastRow = bookings.getLastRow();
+    if (lastRow <= 1) return;
+
+    var targetDate = new Date(dateString);
+    targetDate.setHours(0, 0, 0, 0);
+    var targetTime = targetDate.getTime();
+
+    var periodSet = {};
+    selectedPeriods.forEach(function(p) { periodSet[p] = true; });
+
+    var data = bookings.getRange(2, 1, lastRow - 1, bookings.getLastColumn()).getValues();
+    var conflictMap = {};
+
+    for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        var rowDate = new Date(row[0]);
+        rowDate.setHours(0, 0, 0, 0);
+
+        if (rowDate.getTime() !== targetTime) continue;
+
+        var bookedGear = String(row[6] || '').trim();
+        var bookedPeriod = String(row[5] || '').trim();
+        if (bookedGear === gearName && periodSet[bookedPeriod]) {
+            conflictMap[bookedPeriod] = true;
+        }
+    }
+
+    var conflictPeriods = selectedPeriods.filter(function(p) { return conflictMap[p]; });
+    if (conflictPeriods.length > 0) {
+        throw new Error('設備在以下節次已被借用：' + conflictPeriods.join('、'));
+    }
+}
+
 function submitBookingAPI(data) {
+    var lock = LockService.getScriptLock();
     try {
+        var bookingData = validateBookingPayload(data);
+        lock.waitLock(10000);
+        ensureNoBookingConflict(bookingData.date, bookingData.periods, bookingData.gear);
+
         var timestamp = new Date();
-        
-        // 批量準備資料
-        var rows = data.periods.map(function(period) {
+        var rows = bookingData.periods.map(function(period) {
             return [
-                data.date,
-                data.className,
-                data.teacher,
-                data.subject,
-                data.description,
+                bookingData.date,
+                bookingData.className,
+                bookingData.teacher,
+                bookingData.subject,
+                bookingData.description,
                 period,
-                data.gear,
+                bookingData.gear,
                 timestamp
             ];
         });
-        
-        // 批量寫入（比多次 appendRow 快）
+
         if (rows.length > 0) {
             var lastRow = bookings.getLastRow();
             bookings.getRange(lastRow + 1, 1, rows.length, 8).setValues(rows);
         }
-        
-        // 創建日曆事件
+
         try {
-            createCalendarEvents(data);
+            createCalendarEvents(bookingData);
         } catch (calendarError) {
             Logger.log('Calendar creation failed: ' + calendarError.toString());
-            // 日曆創建失敗不影響主要功能
         }
-        
+
         return { success: true, message: '借用申請提交成功' };
     } catch (error) {
         Logger.log('submitBookingAPI Error: ' + error.toString());
         throw error;
+    } finally {
+        try { lock.releaseLock(); } catch (e) {}
     }
 }
 
-/**
- * 創建日曆事件
- */
 function createCalendarEvents(data) {
     if (!CALENDAR_ID) {
         Logger.log('CALENDAR_ID not defined, skipping calendar creation');
