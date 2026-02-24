@@ -518,6 +518,14 @@ function updateAvailabilityInfo(message) {
     info.innerHTML = '<i class="bi bi-info-circle me-1"></i>' + message;
 }
 
+function formatDateWithWeekday(dateString) {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    return `${dateString}（${weekdays[d.getDay()]}）`;
+}
+
 /**
  * 更新設備狀況表格
  */
@@ -530,7 +538,7 @@ async function updateGearStatusTable(dateOverride) {
     
     // 更新標題
     document.getElementById('gear_status_title').innerHTML = 
-        `<i class="bi bi-calendar-day me-2"></i>設備借用狀況 - ${date}`;
+        `<i class="bi bi-calendar-day me-2"></i>設備借用狀況 - ${formatDateWithWeekday(date)}`;
     
     const tbody = document.getElementById('gearStatusTableBody');
     tbody.innerHTML = `
