@@ -263,13 +263,13 @@ function setupEventListeners() {
     // 日期變更
     document.getElementById('booking_date').addEventListener('change', function() {
         checkGearAvailability();
-        updateGearStatusTable();
+        updateGearStatusTable(this.value);
     });
     
     document.getElementById('view_booking_date').addEventListener('change', function() {
         const date = this.value;
         loadBookingsByDate(date);
-        updateGearStatusTable();
+        updateGearStatusTable(date);
     });
     
     // 節次變更
@@ -327,12 +327,12 @@ async function handleFormSubmit(e) {
         resetGearAvailability();
         
         // 重新設定日期
-        const today = formatDate(new Date());
         document.getElementById('booking_date').value = bookingData.date;
+        document.getElementById('view_booking_date').value = bookingData.date;
         
         // 重新載入數據
         await loadBookingsByDate(bookingData.date);
-        await updateGearStatusTable();
+        await updateGearStatusTable(bookingData.date);
         
     } catch (error) {
         console.error('提交失敗:', error);
@@ -519,8 +519,8 @@ function updateAvailabilityInfo(message) {
 /**
  * 更新設備狀況表格
  */
-async function updateGearStatusTable() {
-    let date = document.getElementById('booking_date').value;
+async function updateGearStatusTable(dateOverride) {
+    let date = dateOverride || document.getElementById('view_booking_date').value || document.getElementById('booking_date').value;
     
     if (!date) {
         date = formatDate(new Date());
@@ -587,15 +587,13 @@ function renderGearStatusTable(gearStatusList) {
         
         const borrowedGears = [];
         visibleGears.forEach(gear => {
-            if (gear.bookedPeriods.includes(period)) {
-                const detail = gear.bookingDetails.find(d => d.period === period);
-                if (detail) {
-                    borrowedGears.push({
-                        gearName: gear.name,
-                        ...detail
-                    });
-                }
-            }
+            const detailsForPeriod = gear.bookingDetails.filter(d => d.period === period);
+            detailsForPeriod.forEach(detail => {
+                borrowedGears.push({
+                    gearName: gear.name,
+                    ...detail
+                });
+            });
         });
         
         if (borrowedGears.length === 0) {
@@ -774,9 +772,9 @@ async function confirmDeleteBooking(encodedBooking) {
         }
         
         // 重新載入數據
-        const date = document.getElementById('booking_date').value;
+        const date = document.getElementById('view_booking_date').value || document.getElementById('booking_date').value;
         await loadBookingsByDate(date);
-        await updateGearStatusTable();
+        await updateGearStatusTable(date);
         
     } catch (error) {
         console.error('刪除失敗:', error);

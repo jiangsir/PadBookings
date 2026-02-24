@@ -14,6 +14,10 @@
     overflow-y: auto;
 }
 
+.gear-status-table-wrap {
+    max-height: min(760px, calc(100vh - 180px));
+}
+
 .navbar-brand {
     font-weight: bold;
 }
@@ -151,6 +155,10 @@
 
 /* 響應式設計 */
 @media (max-width: 768px) {
+    .gear-status-table-wrap {
+        max-height: 60vh;
+    }
+
     #gearStatusTable {
         font-size: 0.75em;
     }
