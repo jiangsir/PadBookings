@@ -2,16 +2,9 @@
  * Google Apps Script API 後端
  * 處理所有 HTTP 請求並返回 JSON 格式的數據
  * 
- * 版本：v2.4.0
- * 最後更新：2026-01-13
- * 更新內容：
- * - 刪除 getPeriods API（前端已硬編碼，不再需要）
- * - 節次資料完全移除，減少程式碼大小和維護成本
- * - 全面優化所有 API 只讀取最近 500 筆記錄
  */
-
 // 版本資訊
-var VERSION = 'v2.4.1';
+var VERSION = 'v2.4.2';
 var LAST_UPDATE = '2026-02-24';
 
 // 配置
@@ -181,7 +174,7 @@ function getGearsAPI() {
 }
 
 /**
- * 獲取特定日期的借用記錄（優化版本 - 限制讀取範圍）
+ * 獲取特定日期的借用記錄
  */
 function getBookingsByDateAPI(dateString) {
     try {
@@ -196,10 +189,9 @@ function getBookingsByDateAPI(dateString) {
         
         var lastColumn = bookings.getLastColumn();
         
-        // 優化：只讀取最近 500 筆記錄
-        var maxRowsToRead = 500;
-        var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
-        var numRows = lastRow - startRow + 1;
+        // 依日期查詢必須完整掃描，否則舊日期資料可能被最近資料擠出視窗
+        var startRow = 2;
+        var numRows = lastRow - 1;
         
         var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
         
@@ -288,7 +280,7 @@ function formatTimestamp(timestamp) {
 }
 
 /**
- * 檢查設備可用性（優化版本 - 限制讀取範圍）
+ * 檢查設備可用性
  */
 function checkGearAvailabilityAPI(dateString, selectedPeriods) {
     try {
@@ -323,10 +315,9 @@ function checkGearAvailabilityAPI(dateString, selectedPeriods) {
         
         var lastColumn = bookings.getLastColumn();
         
-        // 優化：只讀取最近 500 筆記錄
-        var maxRowsToRead = 500;
-        var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
-        var numRows = lastRow - startRow + 1;
+        // 依日期與節次判斷衝突必須完整掃描，避免漏判舊資料
+        var startRow = 2;
+        var numRows = lastRow - 1;
         
         var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
         
@@ -516,7 +507,7 @@ function deleteBookingAPI(booking) {
 }
 
 /**
- * 從試算表刪除記錄（優化版本 - 限制讀取範圍）
+ * 從試算表刪除記錄
  */
 function deleteFromSpreadsheet(booking) {
     var lastRow = bookings.getLastRow();
@@ -524,10 +515,9 @@ function deleteFromSpreadsheet(booking) {
     
     var lastColumn = bookings.getLastColumn();
     
-    // 優化：只讀取最近 500 筆記錄（刪除操作通常針對最近的記錄）
-    var maxRowsToRead = 500;
-    var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
-    var numRows = lastRow - startRow + 1;
+    // 刪除需精準匹配，避免資料不在最近區間時刪不到
+    var startRow = 2;
+    var numRows = lastRow - 1;
     
     var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
     
@@ -581,7 +571,7 @@ function deleteFromCalendar(booking) {
 }
 
 /**
- * 獲取特定日期的設備狀況（優化版本 - 限制讀取範圍）
+ * 獲取特定日期的設備狀況
  */
 function getGearStatusForDateAPI(dateString) {
     try {
@@ -604,15 +594,13 @@ function getGearStatusForDateAPI(dateString) {
             };
         });
         
-        // 優化：只讀取最近 90 天的記錄（減少讀取量）
+        // 依日期查詢需完整掃描，否則舊日期會顯示為無借用
         var lastRow = bookings.getLastRow();
         if (lastRow > 1) {
             var lastColumn = bookings.getLastColumn();
             
-            // 計算要讀取的起始行（最多 500 行或從第 2 行開始）
-            var maxRowsToRead = 500;
-            var startRow = Math.max(2, lastRow - maxRowsToRead + 1);
-            var numRows = lastRow - startRow + 1;
+            var startRow = 2;
+            var numRows = lastRow - 1;
             
             Logger.log('Reading rows ' + startRow + ' to ' + lastRow + ' (total: ' + numRows + ' rows, table has ' + lastRow + ' rows)');
             var data = bookings.getRange(startRow, 1, numRows, lastColumn).getValues();
