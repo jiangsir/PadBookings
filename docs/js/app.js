@@ -607,7 +607,6 @@ function renderGearStatusTable(gearStatusList) {
             borrowedGears.forEach(gear => {
                 html += `
                     <div class="borrowed-gear-item" style="cursor: pointer;">
-                        <i class="bi bi-tablet me-1"></i>
                         <span class="borrowed-gear-name">${gear.gearName}</span>
                         ${gear.description ? `<span class="borrowed-gear-description">${gear.description}</span>` : ''}
                         <span class="borrowed-gear-details">
