@@ -262,14 +262,16 @@ function setupEventListeners() {
     
     // 日期變更
     document.getElementById('booking_date').addEventListener('change', function() {
+        document.getElementById('view_booking_date').value = this.value;
+        loadBookingsByDate(this.value);
         checkGearAvailability();
-        updateGearStatusTable();
+        updateGearStatusTable(this.value);
     });
     
     document.getElementById('view_booking_date').addEventListener('change', function() {
         const date = this.value;
         loadBookingsByDate(date);
-        updateGearStatusTable();
+        updateGearStatusTable(date);
     });
     
     // 節次變更
@@ -327,12 +329,12 @@ async function handleFormSubmit(e) {
         resetGearAvailability();
         
         // 重新設定日期
-        const today = formatDate(new Date());
         document.getElementById('booking_date').value = bookingData.date;
+        document.getElementById('view_booking_date').value = bookingData.date;
         
         // 重新載入數據
         await loadBookingsByDate(bookingData.date);
-        await updateGearStatusTable();
+        await updateGearStatusTable(bookingData.date);
         
     } catch (error) {
         console.error('提交失敗:', error);
@@ -516,11 +518,19 @@ function updateAvailabilityInfo(message) {
     info.innerHTML = '<i class="bi bi-info-circle me-1"></i>' + message;
 }
 
+function formatDateWithWeekday(dateString) {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    return `${dateString}（${weekdays[d.getDay()]}）`;
+}
+
 /**
  * 更新設備狀況表格
  */
-async function updateGearStatusTable() {
-    let date = document.getElementById('booking_date').value;
+async function updateGearStatusTable(dateOverride) {
+    let date = dateOverride || document.getElementById('view_booking_date').value || document.getElementById('booking_date').value;
     
     if (!date) {
         date = formatDate(new Date());
@@ -528,7 +538,7 @@ async function updateGearStatusTable() {
     
     // 更新標題
     document.getElementById('gear_status_title').innerHTML = 
-        `<i class="bi bi-calendar-day me-2"></i>設備借用狀況 - ${date}`;
+        `<i class="bi bi-calendar-day me-2"></i>設備借用狀況 - ${formatDateWithWeekday(date)}`;
     
     const tbody = document.getElementById('gearStatusTableBody');
     tbody.innerHTML = `
@@ -587,15 +597,13 @@ function renderGearStatusTable(gearStatusList) {
         
         const borrowedGears = [];
         visibleGears.forEach(gear => {
-            if (gear.bookedPeriods.includes(period)) {
-                const detail = gear.bookingDetails.find(d => d.period === period);
-                if (detail) {
-                    borrowedGears.push({
-                        gearName: gear.name,
-                        ...detail
-                    });
-                }
-            }
+            const detailsForPeriod = gear.bookingDetails.filter(d => d.period === period);
+            detailsForPeriod.forEach(detail => {
+                borrowedGears.push({
+                    gearName: gear.name,
+                    ...detail
+                });
+            });
         });
         
         if (borrowedGears.length === 0) {
@@ -609,7 +617,6 @@ function renderGearStatusTable(gearStatusList) {
             borrowedGears.forEach(gear => {
                 html += `
                     <div class="borrowed-gear-item" style="cursor: pointer;">
-                        <i class="bi bi-tablet me-1"></i>
                         <span class="borrowed-gear-name">${gear.gearName}</span>
                         ${gear.description ? `<span class="borrowed-gear-description">${gear.description}</span>` : ''}
                         <span class="borrowed-gear-details">
@@ -774,9 +781,9 @@ async function confirmDeleteBooking(encodedBooking) {
         }
         
         // 重新載入數據
-        const date = document.getElementById('booking_date').value;
+        const date = document.getElementById('view_booking_date').value || document.getElementById('booking_date').value;
         await loadBookingsByDate(date);
-        await updateGearStatusTable();
+        await updateGearStatusTable(date);
         
     } catch (error) {
         console.error('刪除失敗:', error);
