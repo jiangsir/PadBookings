@@ -262,6 +262,8 @@ function setupEventListeners() {
     
     // 日期變更
     document.getElementById('booking_date').addEventListener('change', function() {
+        document.getElementById('view_booking_date').value = this.value;
+        loadBookingsByDate(this.value);
         checkGearAvailability();
         updateGearStatusTable(this.value);
     });
